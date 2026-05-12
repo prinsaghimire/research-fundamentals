@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activities — HCI Research Fundamentals</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .progress-summary {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.1rem 1.5rem; display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+  }
+  .prog-stat { text-align: center; }
+  .prog-stat .num { font-size: 1.75rem; font-weight: 800; color: var(--primary); line-height: 1; }
+  .prog-stat .lbl { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+  .prog-bar-wrap { flex: 1; min-width: 160px; }
+  .prog-bar-label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.4rem; display: flex; justify-content: space-between; }
+  .progress-bar-bg { background: var(--border); border-radius: 99px; height: 10px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width 0.5s ease; }
+
+  .filter-bar { display: flex; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .filter-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 0.28rem 0.8rem; font-size: 0.78rem; font-weight: 500; cursor: pointer; font-family: inherit; color: var(--text-muted); transition: all 0.15s; }
+  .filter-btn:hover, .filter-btn.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary-muted); font-weight: 600; }
+
+  .activity-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; overflow: hidden; transition: border-color 0.2s; }
+  .activity-card:hover { border-color: var(--primary-muted); }
+  .activity-card.completed { border-left: 3px solid var(--primary); }
+  .activity-top { padding: 1rem 1.25rem; display: flex; align-items: flex-start; gap: 1rem; cursor: pointer; transition: background 0.15s; }
+  .activity-top:hover { background: var(--surface-alt); }
+  .act-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+  .act-info { flex: 1; }
+  .act-info h3 { font-size: 0.9rem; margin: 0 0 0.3rem; }
+  .act-meta { display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: center; }
+  .act-meta span { font-size: 0.74rem; color: var(--text-muted); }
+  .pts-pill { background: var(--primary-light); color: var(--primary); font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 20px; }
+  .chevron-i { color: var(--text-muted); transition: transform 0.2s; flex-shrink: 0; margin-top: 2px; }
+  .activity-card.open .chevron-i { transform: rotate(180deg); }
+  .activity-body { display: none; border-top: 1px solid var(--border); padding: 1.25rem; }
+  .activity-card.open .activity-body { display: block; }
+
+  .step-list { list-style: none; padding: 0; counter-reset: step; margin: 0.6rem 0 1rem; }
+  .step-list li { counter-increment: step; display: flex; gap: 0.85rem; align-items: flex-start; padding: 0.55rem 0; border-bottom: 1px dashed var(--border); font-size: 0.855rem; line-height: 1.6; }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list li::before { content: counter(step); background: var(--primary-light); color: var(--primary); min-width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+  .deliverable-box { background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.9rem 1rem; margin-bottom: 1rem; }
+  .deliverable-box .dlabel { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 0.35rem; }
+  .deliverable-box p { font-size: 0.845rem; line-height: 1.6; }
+
+  .reflection-area { margin-bottom: 1rem; }
+  .reflection-area .rlabel { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.35rem; display: block; }
+  .reflection-area .rprompt { font-size: 0.845rem; color: var(--text-muted); margin-bottom: 0.5rem; line-height: 1.55; font-style: italic; }
+  .reflection-area textarea { resize: vertical; min-height: 72px; }
+
+  .complete-btn { width: 100%; justify-content: center; margin-top: 0.25rem; }
+  .completed-footer { display: flex; align-items: center; gap: 0.5rem; color: var(--primary); font-size: 0.84rem; font-weight: 600; margin-top: 0.5rem; padding: 0.6rem 0.85rem; background: var(--primary-light); border-radius: var(--radius-sm); }
+  .section-micro { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 0.35rem; display: block; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">HCI</div><div class="logo-text">Research<br>Fundamentals</div></div>
+    <ul class="nav-list">
+      <li><a href="index.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a></li>
+      <li><a href="syllabus.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Syllabus</a></li>
+      <li><a href="schedule.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a></li>
+      <li><a href="modules.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Modules</a></li>
+      <li><a href="assignments.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Assignments</a></li>
+      <li><a href="quizzes.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quizzes</a></li>
+      <li><a href="discussions.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Discussions</a></li>
+      <li><a href="activities.html" class="nav-link active"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Activities</a></li>
+      <li><a href="grades.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grades</a></li>
+      <li><a href="rubrics.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Rubrics</a></li>
+    </ul>
+  </nav>
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="page-title">In-Class Activities</span>
+      <div class="topbar-actions"><span class="semester-badge">Spring 2026</span></div>
+    </header>
+    <div class="content-body">
+      <h1 style="margin-bottom:0.2rem;">In-Class Activities</h1>
+      <p class="text-muted text-sm" style="margin-bottom:1.25rem;">15 activities · 10 pts each · Lowest score dropped · 25% of final grade</p>
+
+      <div class="progress-summary">
+        <div class="prog-stat"><div class="num" id="statDone">0</div><div class="lbl">Completed</div></div>
+        <div class="prog-stat"><div class="num" id="statPts">0</div><div class="lbl">Points</div></div>
+        <div class="prog-stat"><div class="num" id="statLeft">15</div><div class="lbl">Remaining</div></div>
+        <div class="prog-bar-wrap">
+          <div class="prog-bar-label"><span>Completion Progress</span><span id="statPct">0%</span></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" id="progFill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="applyFilter('all',this)">All (15)</button>
+        <button class="filter-btn" onclick="applyFilter('done',this)">Completed</button>
+        <button class="filter-btn" onclick="applyFilter('pending',this)">Pending</button>
+        <button class="filter-btn" onclick="applyFilter('1',this)">Unit 1</button>
+        <button class="filter-btn" onclick="applyFilter('2',this)">Unit 2</button>
+        <button class="filter-btn" onclick="applyFilter('3',this)">Unit 3</button>
+        <button class="filter-btn" onclick="applyFilter('4',this)">Unit 4</button>
+        <button class="filter-btn" onclick="applyFilter('5',this)">Unit 5</button>
+      </div>
+
+      <div id="actsContainer"></div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+const ACTS_KEY = 'hci_activities_v2';
+function getActStore() { try { return JSON.parse(localStorage.getItem(ACTS_KEY)) || {}; } catch { return {}; } }
+function saveAct(id, reflection) {
+  const s = getActStore();
+  s[id] = { reflection, date: new Date().toISOString() };
+  localStorage.setItem(ACTS_KEY, JSON.stringify(s));
+}
+
+const activities = [
+  { id:'a1', week:1, unit:1, icon:'🗺️', bg:'#e8f5e9', title:'Paradigm Mapping Exercise', duration:'30 min', type:'Group',
+    overview:'Working in small groups, examine 3 assigned technologies and map each to one of HCI\'s three paradigms (engineering, cognitive science, phenomenology). Defend your classification to the class.',
+    steps:['Form groups of 3–4. Each group receives 3 technology cards.','For each technology, identify the dominant paradigm and write a 1–2 sentence justification on a sticky note.','Post mappings on the shared whiteboard grid.','Class debrief: discuss disagreements — technologies often span multiple paradigms.'],
+    deliverable:'Photograph your group\'s completed mapping and upload it with a 2–3 sentence reflection.',
+    reflection:'Which technology was hardest to classify, and why? What does that difficulty reveal about the framework?'
+  },
+  { id:'a2', week:2, unit:1, icon:'❓', bg:'#e3f2fd', title:'Reframe the Question Workshop', duration:'45 min', type:'Pairs',
+    overview:'Convert vague design problems into focused, researchable HCI questions using the "who, what, why, context" framework.',
+    steps:['Receive 4 vague problem statements from the instructor.','For each, identify what\'s missing: Who are the users? What is the actual behavior? In what context?','Rewrite each as 1–2 specific HCI research questions.','Compare your questions with your partner — what assumptions did each person make?','Present your best reframing in a 60-second explanation.'],
+    deliverable:'Submit one original problem statement from your project plus 2–3 reframed research questions.',
+    reflection:'What makes a research question "researchable" vs. just interesting?'
+  },
+  { id:'a3', week:3, unit:1, icon:'🐟', bg:'#fce4ec', title:'Fishbowl: Who is HCI Designed For?', duration:'50 min', type:'Full Class',
+    overview:'A structured fishbowl discussion examining equity, representation, and power in HCI design.',
+    steps:['Inner circle (5–6 students) opens discussion: which technologies work well for you, and who might they not work for?','Outer circle observes and takes structured notes: What claims? What evidence? Whose voices are missing?','After 15 minutes, outer circle members tap in to replace inner circle speakers.','Full class debrief: what patterns emerged? Who was named? Who wasn\'t?','Individual quiet write (5 min): one concrete change to include an underrepresented group.'],
+    deliverable:'Post a 150–200 word reflection to the Week 3 discussion board by Sunday 11:59 PM.',
+    reflection:'Whose perspective was centered today? Whose was absent? What does that absence tell us?'
+  },
+  { id:'a4', week:4, unit:2, icon:'🎙️', bg:'#f3e5f5', title:'Interview & Think-Aloud Lab', duration:'60 min', type:'Pairs',
+    overview:'Practice semi-structured interviewing and think-aloud observation back-to-back, playing both the researcher and participant roles.',
+    steps:['Round 1 — Interview (20 min): Partner A interviews Partner B about a daily technology. Use the provided guide. Practice open-ended questions and probing.','Debrief Round 1 (5 min): Where did you slip into leading questions?','Round 2 — Think-Aloud (20 min): Partner B completes 2 tasks on an assigned interface while Partner A observes. B verbalizes thoughts continuously.','Debrief Round 2 (5 min): What surprised you as observer?','Class share-out: biggest gap between expected and actual user behavior.'],
+    deliverable:'Submit your observation notes and a 1-paragraph reflection on observer effect.',
+    reflection:'How did verbalizing thoughts during the think-aloud change the interaction? What does that mean for data validity?'
+  },
+  { id:'a5', week:5, unit:2, icon:'🔭', bg:'#e0f2f1', title:'Field Observation Exercise', duration:'30 min field + 20 min debrief', type:'Individual',
+    overview:'Conduct a 30-minute structured observation of people interacting with technology in a public setting using a field notes template.',
+    steps:['Choose your site: library computer, ATM, kiosk, shared printer, or similar.','Use the field notes template: record timestamps, behaviors (not interpretations), context, notable events.','Do not interact with or approach users — observe respectfully from a distance.','Write 3–5 "I noticed..." and 3–5 "I wonder..." statements from your notes.','Return to class for debrief: share one surprising observation.'],
+    deliverable:'Submit your completed field notes with timestamps, observations, and I noticed/I wonder statements.',
+    reflection:'How did your assumptions about technology use compare to what you actually observed?'
+  },
+  { id:'a6', week:6, unit:2, icon:'📊', bg:'#fff3e0', title:'Survey Design & Data Lab', duration:'55 min', type:'Group + Individual',
+    overview:'Design and critique a survey instrument, then analyze a provided quantitative dataset to practice reading HCI data.',
+    steps:['Part 1 (25 min): Draft a 10-question survey for a given scenario. Include Likert scales, an open-ended item, and a demographic item.','Peer review: swap surveys with another pair; flag biased or double-barreled questions.','Part 2 (25 min): Analyze a provided dataset (task completion, error counts, SUS scores, Likert results for 20 users).','Calculate mean SUS, completion rate, and most common error. Identify the single most important finding.','Share-out: what does your number mean in plain language? What can\'t it tell you?'],
+    deliverable:'Submit your revised survey (post peer review) and a 1-slide data summary with a 2-sentence interpretation.',
+    reflection:'What qualitative follow-up would you design to explain the quantitative pattern you found?'
+  },
+  { id:'a7', week:7, unit:3, icon:'💡', bg:'#fef9c3', title:'Ideation Sprint & Criteria Matrix', duration:'50 min', type:'Group',
+    overview:'Generate 20 design ideas rapidly, then evaluate the most promising directions using a weighted criteria matrix.',
+    steps:['Warm-up (5 min): Sketch 10 uses for a brick — speed over quality.','Ideation Sprint (15 min): Generate 20 ideas for your project\'s core problem. Sketches + 1-sentence labels. No evaluation yet.','Down-select (10 min): Independently circle your top 5; share with group; select 3 to evaluate.','Criteria Matrix (15 min): Define 4 criteria (feasibility, impact, novelty, equity). Rate each idea 1–3. Tally scores.','Debrief (5 min): Does the matrix result match your intuition? When should you override it?'],
+    deliverable:'Submit your ideation page (photo OK) and completed criteria matrix with your selected direction marked.',
+    reflection:'Which idea surprised you by scoring well? Which felt right but scored poorly? What does that tension reveal?'
+  },
+  { id:'a8', week:8, unit:3, icon:'✂️', bg:'#e8f5e9', title:'Paper Prototype Lab & Speed Critique', duration:'60 min', type:'Individual + Group',
+    overview:'Build a paper prototype of your core user flow, then rotate through three critique stations for rapid feedback.',
+    steps:['Build Phase (20 min): Using index cards, paper, markers, and tape — construct a prototype covering your core task (minimum 4 screens).','Station Setup: arrange prototypes around the room at workstations.','Speed Critique Rounds 1–3 (7 min each): visit each station, leave written sticky note feedback using the critique card (What\'s clear? Confusing? Missing?).','Return to your prototype (10 min): read all notes; categorize into keep/change/explore.','Class share-out: the most useful single piece of feedback you received.'],
+    deliverable:'Submit a photo of your paper prototype and a 1-page feedback response noting planned changes and rationale.',
+    reflection:'What assumption about your design did classmate feedback challenge?'
+  },
+  { id:'a9', week:9, unit:3, icon:'🖥️', bg:'#e3f2fd', title:'Figma Hi-Fi Lab & Accessibility Audit', duration:'60 min', type:'Individual',
+    overview:'Dedicated studio time to build or refine your Figma prototype, followed by a WCAG 2.1 accessibility audit.',
+    steps:['Figma Build Time (30 min): Work on your hi-fi prototype. Focus on visual hierarchy, interaction flows, component reuse. Instructor circulates for individual feedback.','Accessibility Audit (20 min): Evaluate your prototype against 10+ WCAG 2.1 criteria. Document each: criterion, pass/fail, issue if failed, proposed fix.','Peer Spot-Check (10 min): exchange prototypes with a partner; find 1 accessibility issue the other missed.'],
+    deliverable:'Submit your Figma prototype link and completed accessibility audit table (10+ criteria evaluated).',
+    reflection:'Which accessibility issue was hardest to fix? What does that reveal about how the design was originally conceived?'
+  },
+  { id:'a10', week:10, unit:4, icon:'👤', bg:'#f3e5f5', title:'Usability Test Protocol Workshop', duration:'60 min', type:'Pairs',
+    overview:'Draft a full usability test protocol for your project, then run a 10-minute practice session with a classmate.',
+    steps:['Protocol Writing (20 min): Draft your plan — participant criteria, consent script, 3–4 task scenarios, think-aloud instructions, measures.','Pilot Test (10 min): Run a quick test with your partner as participant. Moderate using your protocol.','Debrief (10 min): What broke? Which tasks were unclear? Which questions were leading? Revise.','Switch roles (10 min): partner runs their protocol with you as participant.','Class reflection: what\'s the hardest part of moderating? How do you handle silence?'],
+    deliverable:'Submit your finalized usability test protocol (ready to use for Milestone 4 data collection).',
+    reflection:'What moderator instinct did you have to fight? (e.g., wanting to help the participant, asking leading questions)'
+  },
+  { id:'a11', week:11, unit:4, icon:'🔎', bg:'#fce4ec', title:'Heuristic Evaluation Exercise', duration:'55 min', type:'Individual + Group',
+    overview:'Apply Nielsen\'s 10 usability heuristics independently to an assigned interface, then aggregate findings with two classmates.',
+    steps:['Individual Evaluation (25 min): Document every usability issue using the heuristics worksheet. For each: describe the problem, name the heuristic, rate severity 1–4.','Group Aggregation (15 min): combine findings with 2 classmates; resolve duplicates; flag severity disagreements.','Prioritization (10 min): rank your top 5 issues by severity × frequency.','Class share-out: which issue did all three evaluators find? Which only one?'],
+    deliverable:'Submit your individual evaluation worksheet AND your group\'s aggregated top-5 recommendations.',
+    reflection:'Which heuristic violation was most severe? How did your severity ratings compare to your partners\'?'
+  },
+  { id:'a12', week:12, unit:4, icon:'📈', bg:'#e0f2f1', title:'Qualitative Coding & Data Visualization', duration:'55 min', type:'Group',
+    overview:'Practice thematic analysis on think-aloud transcripts, then create visualizations communicating key findings to a design team.',
+    steps:['Coding Round 1 (15 min): Individually read 2 transcript excerpts. Apply open codes — label what\'s happening in plain language.','Codebook Development (10 min): Compare codes with your group; agree on a shared codebook of 6–8 themes with clear definitions.','Coding Round 2 (10 min): Re-code using the shared codebook; note segments that don\'t fit.','Data Visualization (15 min): Create 2 charts from the provided dataset — task completion rates + SUS distribution.','Share-out: what story does your visualization tell? What does it hide?'],
+    deliverable:'Submit your coded transcript excerpts (with codebook) and 2 data visualizations.',
+    reflection:'Where did your codes disagree with a partner\'s? What does that disagreement reveal about qualitative interpretation?'
+  },
+  { id:'a13', week:13, unit:5, icon:'✍️', bg:'#fff3e0', title:'CHI Paper Anatomy & Writing Lab', duration:'60 min', type:'Individual + Pairs',
+    overview:'Dissect a published CHI paper section by section to understand scholarly HCI conventions, then apply those moves to your own paper.',
+    steps:['Paper Anatomy (20 min): In pairs, analyze the assigned CHI paper. For each section — what does it do? What sentence-level moves does the author make?','Writing Moves Inventory: identify 3 specific moves the authors use well (hedging, linking to prior work, framing contributions).','Writing Lab (30 min): Draft your Related Work section (or most in-progress section) — aim for 300–400 words.','Peer Review (10 min): exchange with a partner; give one specific compliment and one specific suggestion.'],
+    deliverable:'Submit your 300–400 word draft section annotated with 2–3 writing moves you tried to use.',
+    reflection:'What\'s hardest about academic writing for you personally? What strategy from today helped most?'
+  },
+  { id:'a14', week:14, unit:5, icon:'🎤', bg:'#e8f5e9', title:'Elevator Pitch & Demo Prep', duration:'55 min', type:'Individual',
+    overview:'Deliver a 5-minute pitch of your research project to a small audience, get structured feedback, and troubleshoot your prototype demo.',
+    steps:['Pitch Prep (10 min): structure your 5-minute pitch — 1 min each for: problem, research, findings, design, evaluation & impact.','Pitch Delivery (5 min per student): deliver to a group of 4–5 classmates. No slides required.','Structured Feedback (5 min): audience completes a feedback card: what landed, what was unclear, what they\'d ask in Q&A.','Demo Troubleshoot (15 min): run through your prototype demo; identify dead ends or broken flows.','Revise your pitch outline based on feedback.'],
+    deliverable:'Submit your revised pitch outline (1 page) and demo run-through notes (issues found + how you\'ll handle them).',
+    reflection:'What part of your project is hardest to explain in 30 seconds, and why?'
+  },
+  { id:'a15', week:15, unit:5, icon:'🏁', bg:'#fce4ec', title:'Final Showcase Presentation', duration:'15 min per student', type:'Individual',
+    overview:'Deliver your final 15-minute research presentation with live prototype demo and respond to Q&A.',
+    steps:['Set up your presentation and prototype (2 min prep).','Deliver your 15-min presentation: research question, methods, findings, design, evaluation, implications.','Live demo: demonstrate the core user flow of your Figma prototype.','Q&A (5 min): respond to questions from classmates and instructor.','Complete peer evaluation forms for 2 classmates before end of class.'],
+    deliverable:'Final Research Paper submitted by 11:59 PM on presentation day. Peer evaluation forms submitted before end of class.',
+    reflection:'What are you most proud of from this semester? What would you do differently if you started over?'
+  }
+];
+
+let currentFilter = 'all';
+
+function updateProgress() {
+  const s = getActStore();
+  const done = activities.filter(a => s[a.id]).length;
+  const pts = done * 10;
+  const pct = Math.round((done / activities.length) * 100);
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statPts').textContent = pts;
+  document.getElementById('statLeft').textContent = activities.length - done;
+  document.getElementById('statPct').textContent = pct + '%';
+  document.getElementById('progFill').style.width = pct + '%';
+}
+
+function renderAll() {
+  const s = getActStore();
+  const el = document.getElementById('actsContainer');
+  el.innerHTML = '';
+
+  const list = activities.filter(a => {
+    if (currentFilter === 'done') return !!s[a.id];
+    if (currentFilter === 'pending') return !s[a.id];
+    if (['1','2','3','4','5'].includes(currentFilter)) return String(a.unit) === currentFilter;
+    return true;
+  });
+
+  if (!list.length) { el.innerHTML = '<p class="text-muted" style="padding:1rem 0;">No activities match this filter.</p>'; return; }
+
+  list.forEach(act => {
+    const done = !!s[act.id];
+    const d = document.createElement('div');
+    d.className = 'activity-card' + (done ? ' completed' : '');
+    d.innerHTML = `
+      <div class="activity-top" onclick="this.closest('.activity-card').classList.toggle('open')">
+        <div class="act-icon" style="background:${act.bg}">${act.icon}</div>
+        <div class="act-info">
+          <h3>Week ${act.week} — ${act.title}</h3>
+          <div class="act-meta">
+            <span>⏱ ${act.duration}</span><span>👥 ${act.type}</span>
+            <span class="pts-pill">10 pts</span>
+            <span class="badge-status ${done ? 'badge-graded' : 'badge-upcoming'}">${done ? '✓ Completed' : 'Pending'}</span>
+          </div>
+        </div>
+        <svg class="chevron-i" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="activity-body">
+        <p style="font-size:0.875rem;line-height:1.65;margin-bottom:1rem;">${act.overview}</p>
+        <span class="section-micro">Activity Steps</span>
+        <ol class="step-list">${act.steps.map(st=>`<li>${st}</li>`).join('')}</ol>
+        <div class="deliverable-box">
+          <div class="dlabel">📎 Deliverable</div>
+          <p>${act.deliverable}</p>
+        </div>
+        <div class="reflection-area">
+          <span class="rlabel">💭 Reflection Prompt</span>
+          <p class="rprompt">${act.reflection}</p>
+          <textarea id="ref-${act.id}" placeholder="Write your reflection here...">${s[act.id]?.reflection || ''}</textarea>
+        </div>
+        ${done
+          ? `<div class="completed-footer">✅ Completed on ${new Date(s[act.id].date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>`
+          : `<button class="btn complete-btn" onclick="markDone('${act.id}')">✓ Mark as Completed</button>`
+        }
+      </div>`;
+    el.appendChild(d);
+  });
+}
+
+function markDone(id) {
+  const ref = document.getElementById('ref-' + id)?.value || '';
+  saveAct(id, ref);
+  GradeStore.save('act_' + id, 10, 10);
+  updateProgress();
+  renderAll();
+}
+
+function applyFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+updateProgress();
+renderAll();
+</script>
+</body>
+</html>

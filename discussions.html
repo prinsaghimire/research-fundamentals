@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discussions — HCI Research Fundamentals</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .thread-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 0.75rem; overflow: hidden;
+  }
+  .thread-card:hover { border-color: var(--primary-muted); }
+  .thread-header { padding: 1rem 1.25rem; display: flex; align-items: flex-start; gap: 1rem; cursor: pointer; }
+  .thread-header:hover { background: var(--surface-alt); }
+  .thread-info { flex: 1; }
+  .thread-info h3 { font-size: 0.92rem; margin: 0 0 0.3rem; }
+  .thread-meta { display: flex; gap: 0.85rem; flex-wrap: wrap; align-items: center; }
+  .thread-meta span { font-size: 0.74rem; color: var(--text-muted); }
+  .thread-body { display: none; border-top: 1px solid var(--border); padding: 1.25rem; }
+  .thread-card.open .thread-body { display: block; }
+  .thread-prompt {
+    background: var(--surface-alt); border-left: 3px solid var(--primary);
+    border-radius: var(--radius-sm); padding: 0.9rem 1rem; margin-bottom: 1.25rem;
+    font-size: 0.875rem; line-height: 1.65;
+  }
+  .thread-prompt strong { display: block; margin-bottom: 0.3rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); }
+  .replies-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; margin-bottom: 0.75rem; }
+  .reply-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.9rem 1rem; margin-bottom: 0.6rem; }
+  .reply-meta { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+  .reply-meta .author { font-weight: 600; font-size: 0.82rem; }
+  .reply-meta .time { font-size: 0.72rem; color: var(--text-muted); margin-left: auto; }
+  .reply-body { font-size: 0.84rem; line-height: 1.65; color: var(--text); }
+  .reply-actions { margin-top: 0.5rem; display: flex; gap: 0.5rem; }
+  .like-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.2rem 0.6rem; font-size: 0.75rem; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem; font-family: inherit; transition: background 0.15s, color 0.15s; }
+  .like-btn:hover, .like-btn.liked { background: var(--primary-light); color: var(--primary); border-color: var(--primary-muted); }
+  .compose-box { margin-top: 1rem; }
+  .compose-box textarea { resize: vertical; min-height: 80px; }
+  .compose-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
+  .pinned-badge { background: var(--accent-light); color: #92400e; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 20px; }
+  .chevron-icon { color: var(--text-muted); transition: transform 0.2s; flex-shrink: 0; margin-top: 2px; }
+  .thread-card.open .chevron-icon { transform: rotate(180deg); }
+  .empty-state { text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.875rem; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">HCI</div><div class="logo-text">Research<br>Fundamentals</div></div>
+    <ul class="nav-list">
+      <li><a href="index.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a></li>
+      <li><a href="syllabus.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Syllabus</a></li>
+      <li><a href="schedule.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a></li>
+      <li><a href="modules.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Modules</a></li>
+      <li><a href="assignments.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Assignments</a></li>
+      <li><a href="quizzes.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quizzes</a></li>
+      <li><a href="discussions.html" class="nav-link active"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Discussions</a></li>
+      <li><a href="activities.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Activities</a></li>
+      <li><a href="grades.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grades</a></li>
+      <li><a href="rubrics.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Rubrics</a></li>
+    </ul>
+  </nav>
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="page-title">Discussions</span>
+      <div class="topbar-actions"><span class="semester-badge">Spring 2026</span></div>
+    </header>
+    <div class="content-body">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.75rem;">
+        <div>
+          <h1 style="margin-bottom:0.2rem;">Discussion Boards</h1>
+          <p class="text-muted text-sm">Weekly discussions. Online posts due Sunday 11:59 PM ET. Click a thread to read and reply.</p>
+        </div>
+      </div>
+      <div id="discussionContainer"></div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+const threads = [
+  { id: 'd1', week: 'Week 1', module: 'Module 1', pinned: true,
+    title: 'Where do you see HCI in your everyday life?',
+    prompt: 'Connect HCI to your lived experience. Think about the last 24 hours: which interactive systems did you use? What frustrated you? What worked beautifully? Choose one example and reflect on which of the three HCI paradigms (engineering, cognitive science, phenomenology) best explains your experience with it, and why.',
+    seedPosts: [
+      { author: 'Dr. Rivera', initials: 'DR', color: '#166534', date: 'Jan 13, 2026', likes: 4, text: 'I find myself thinking about HCI every time I use a self-checkout kiosk. From an engineering lens it\'s optimized for speed; from a phenomenological lens it completely transforms the grocery shopping experience. What examples resonate with you all?' },
+      { author: 'Alex M.', initials: 'AM', color: '#1d4ed8', date: 'Jan 14, 2026', likes: 3, text: 'For me it\'s navigation apps like Google Maps. The engineering paradigm explains the routing algorithms, but the phenomenological lens captures how much it has changed my sense of place and spatial memory. I almost never build mental maps of new cities anymore.' },
+      { author: 'Jordan T.', initials: 'JT', color: '#7c3aed', date: 'Jan 15, 2026', likes: 2, text: 'Voice assistants feel like the clearest example. The cognitive science paradigm fits — designed around mental models of natural conversation. But when they break down in social settings, the awkwardness is very embodied and phenomenological.' }
+    ]
+  },
+  { id: 'd2', week: 'Week 2', module: 'Module 2',
+    title: 'Reframing a vague design problem into a researchable HCI question',
+    prompt: 'Take this vague problem: "Students don\'t engage with the library\'s digital resources." Reframe it as 2–3 focused, researchable HCI questions. For each, identify (a) the method you would use, and (b) the type of data it would generate. Reply to at least one classmate to compare approaches.',
+    seedPosts: [
+      { author: 'Dr. Rivera', initials: 'DR', color: '#166534', date: 'Jan 20, 2026', likes: 2, text: '"Don\'t engage" is too vague to study directly — it could mean students don\'t know the resources exist, can\'t find them, find the interface unusable, or prefer alternatives. Each possibility calls for a completely different research approach.' }
+    ]
+  },
+  { id: 'd3', week: 'Week 3', module: 'Module 3',
+    title: 'Fishbowl: Who is HCI designed for? Whose voices are missing?',
+    prompt: 'Reflect on the in-class fishbowl discussion. (1) Identify one insight that shifted your thinking. (2) Describe a specific population whose voices are systematically underrepresented in HCI. (3) Propose one concrete change to how HCI research is conducted to address this gap.',
+    seedPosts: [
+      { author: 'Sam K.', initials: 'SK', color: '#b45309', date: 'Jan 27, 2026', likes: 5, text: 'The fishbowl made me realize that "universal design" often means designing for able-bodied users and retrofitting accessibility later. Older adults are one of the fastest-growing user groups but are drastically underrepresented in usability studies. Research labs should actively recruit participants 65+.' }
+    ]
+  },
+  { id: 'd4', week: 'Week 4', module: 'Module 4',
+    title: 'Think-Aloud Lab Reflection',
+    prompt: 'After the think-aloud lab, reflect on your experience as both participant and observer. As participant: what was it like to verbalize your thoughts? Did it change how you used the interface? As observer: what surprised you? What does the gap between expected and actual user behavior reveal?',
+    seedPosts: []
+  },
+  { id: 'd5', week: 'Week 6', module: 'Module 6',
+    title: 'Data Story: What did your numbers tell you about users?',
+    prompt: 'Share your 2–3 sentence "data story" from the lab. What was the most surprising quantitative finding? What question does it raise that numbers alone can\'t answer? What qualitative follow-up would you design?',
+    seedPosts: []
+  },
+  { id: 'd6', week: 'Week 7', module: 'Module 7',
+    title: 'Design Justice: How does power shape design?',
+    prompt: 'Describe a technology you interact with regularly. Who do you think was centered in its design process? Whose needs are served well, and whose are not? How would a design justice approach change that process? Be specific — name the system, the population, and the change.',
+    seedPosts: [
+      { author: 'Dr. Rivera', initials: 'DR', color: '#166534', date: 'Feb 24, 2026', likes: 3, text: 'Costanza-Chock\'s core argument is that design is never neutral — it encodes the values and power relationships of those who create it. The question isn\'t whether design reflects power, but whose power, and whether we\'re willing to name and redistribute it.' }
+    ]
+  },
+  { id: 'd7', week: 'Week 11', module: 'Module 11',
+    title: 'Heuristic Evaluation: What did your expert review find?',
+    prompt: 'Share the top 2 heuristic violations you found during the in-class evaluation exercise. For each: (1) Name the heuristic violated, (2) Describe the specific interface problem, (3) Rate severity (1–4), and (4) Propose a redesign recommendation. Respond to a classmate whose findings surprised you.',
+    seedPosts: []
+  }
+];
+
+function renderPost(post, threadId, idx) {
+  return `
+    <div class="reply-card">
+      <div class="reply-meta">
+        <div class="avatar" style="background:${post.color || 'var(--primary)'};">${post.initials || 'ME'}</div>
+        <span class="author">${post.author || 'You'}</span>
+        ${post.isUser ? '<span class="badge-status badge-submitted" style="font-size:0.68rem;padding:0.1rem 0.4rem;">You</span>' : ''}
+        <span class="time">${post.date || (post.dateISO ? new Date(post.dateISO).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '')}</span>
+      </div>
+      <div class="reply-body">${post.text}</div>
+      <div class="reply-actions">
+        <button class="like-btn" onclick="this.classList.toggle('liked');var c=this.querySelector('.lc');c.textContent=this.classList.contains('liked')?parseInt(c.textContent)+1:parseInt(c.textContent)-1">
+          👍 <span class="lc">${post.likes || 0}</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+const container = document.getElementById('discussionContainer');
+
+threads.forEach(thread => {
+  const savedPosts = DiscussionStore.get(thread.id);
+  const allPosts = [...thread.seedPosts, ...savedPosts];
+
+  const card = document.createElement('div');
+  card.className = 'thread-card';
+  card.innerHTML = `
+    <div class="thread-header" onclick="this.closest('.thread-card').classList.toggle('open')">
+      <div style="flex:1;">
+        <div class="thread-meta" style="margin-bottom:0.3rem;">
+          <span>${thread.week} · ${thread.module}</span>
+          ${thread.pinned ? '<span class="pinned-badge">📌 Pinned</span>' : ''}
+          <span id="count-${thread.id}">${allPosts.length} ${allPosts.length === 1 ? 'reply' : 'replies'}</span>
+        </div>
+        <h3>${thread.title}</h3>
+      </div>
+      <svg class="chevron-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="thread-body">
+      <div class="thread-prompt"><strong>Discussion Prompt</strong>${thread.prompt}</div>
+      <div class="replies-label" id="rlabel-${thread.id}">${allPosts.length} ${allPosts.length === 1 ? 'Reply' : 'Replies'}</div>
+      <div id="replies-${thread.id}">
+        ${allPosts.length === 0 ? '<div class="empty-state">No replies yet. Be the first to respond!</div>' : allPosts.map((p,i) => renderPost(p, thread.id, i)).join('')}
+      </div>
+      <div class="compose-box">
+        <label for="reply-${thread.id}">Your Reply</label>
+        <textarea id="reply-${thread.id}" placeholder="Share your thoughts, connect to a reading, or respond to a classmate..."></textarea>
+        <div class="compose-actions">
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('reply-${thread.id}').value=''">Clear</button>
+          <button class="btn btn-sm" onclick="postReply('${thread.id}')">Post Reply</button>
+        </div>
+      </div>
+    </div>`;
+  container.appendChild(card);
+});
+
+function postReply(threadId) {
+  const ta = document.getElementById('reply-' + threadId);
+  const text = ta.value.trim();
+  if (!text) { alert('Please write something before posting.'); return; }
+  const thread = threads.find(t => t.id === threadId);
+  const updated = DiscussionStore.add(threadId, {
+    author: 'You', initials: 'ME', isUser: true, text, likes: 0
+  });
+  const allPosts = [...thread.seedPosts, ...updated];
+  document.getElementById('replies-' + threadId).innerHTML = allPosts.map((p,i) => renderPost(p, threadId, i)).join('');
+  document.getElementById('count-' + threadId).textContent = `${allPosts.length} ${allPosts.length === 1 ? 'reply' : 'replies'}`;
+  document.getElementById('rlabel-' + threadId).textContent = `${allPosts.length} ${allPosts.length === 1 ? 'Reply' : 'Replies'}`;
+  ta.value = '';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rubrics — HCI Research Fundamentals</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .rubric-nav { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .rubric-nav-btn {
+    padding: 0.4rem 0.85rem; border-radius: 20px; font-size: 0.78rem;
+    font-weight: 600; cursor: pointer; border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text-muted); font-family: inherit;
+    transition: all 0.15s;
+  }
+  .rubric-nav-btn:hover { border-color: var(--primary-muted); color: var(--text); }
+  .rubric-nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .rubric-panel { display: none; }
+  .rubric-panel.active { display: block; }
+
+  .rubric-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white; border-radius: var(--radius); padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .rubric-header h2 { margin: 0 0 0.25rem; font-size: 1.05rem; }
+  .rubric-header p { margin: 0; font-size: 0.82rem; opacity: 0.85; }
+  .rubric-header .rubric-meta { display: flex; gap: 1.25rem; margin-top: 0.75rem; flex-wrap: wrap; }
+  .rubric-header .rubric-meta span { font-size: 0.78rem; opacity: 0.85; }
+
+  .criteria-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+  table.rubric-t { min-width: 700px; }
+  table.rubric-t th { font-size: 0.75rem; padding: 0.7rem 0.85rem; white-space: nowrap; }
+  table.rubric-t td { padding: 0.7rem 0.85rem; font-size: 0.8rem; vertical-align: top; line-height: 1.55; }
+  table.rubric-t td:first-child { font-weight: 600; white-space: nowrap; min-width: 140px; }
+  table.rubric-t td:nth-child(2) { background: #f0fdf4; }
+  table.rubric-t td:nth-child(3) { background: #fefce8; }
+  table.rubric-t td:nth-child(4) { background: #fff7ed; }
+  table.rubric-t td:nth-child(5) { background: #fef2f2; }
+  .pts { font-size: 0.7rem; font-weight: 700; display: block; color: var(--text-muted); margin-top: 0.2rem; }
+
+  .rubric-total {
+    display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem;
+    margin-top: 0.75rem; padding: 0.75rem 1rem;
+    background: var(--surface-alt); border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+  }
+  .rubric-total strong { font-size: 1rem; color: var(--primary); }
+
+  .legend-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .lc { padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">HCI</div><div class="logo-text">Research<br>Fundamentals</div></div>
+    <ul class="nav-list">
+      <li><a href="index.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a></li>
+      <li><a href="syllabus.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Syllabus</a></li>
+      <li><a href="schedule.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a></li>
+      <li><a href="modules.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Modules</a></li>
+      <li><a href="assignments.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Assignments</a></li>
+      <li><a href="quizzes.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quizzes</a></li>
+      <li><a href="discussions.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Discussions</a></li>
+      <li><a href="activities.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Activities</a></li>
+      <li><a href="grades.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grades</a></li>
+      <li><a href="rubrics.html" class="nav-link active"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Rubrics</a></li>
+    </ul>
+  </nav>
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="page-title">Rubrics</span>
+      <div class="topbar-actions"><span class="semester-badge">Spring 2026</span></div>
+    </header>
+    <div class="content-body">
+      <h1 style="margin-bottom:0.25rem;">Assignment Rubrics</h1>
+      <p class="text-muted text-sm" style="margin-bottom:1.25rem;">Detailed grading criteria for all major assignments. Use these to guide your work before submitting.</p>
+
+      <div class="legend-chips">
+        <span class="lc" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;">Excellent</span>
+        <span class="lc" style="background:#fefce8;color:#854d0e;border:1px solid #fef08a;">Proficient</span>
+        <span class="lc" style="background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;">Developing</span>
+        <span class="lc" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;">Insufficient</span>
+      </div>
+
+      <div class="rubric-nav" id="rubricNav"></div>
+      <div id="rubricPanels"></div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+const rubrics = [
+  {
+    id: 'm1', label: 'Milestone 1', title: 'Research Proposal', points: 100, due: 'Week 3 · Sunday, Jan 27',
+    desc: 'Evaluates the clarity of your problem framing, the quality of your research questions, and the depth of your annotated bibliography.',
+    criteria: [
+      { name: 'Problem Statement & Motivation', weight: 20,
+        excellent: 'Clearly identifies a specific, real-world HCI problem. Articulates who is affected, why it matters, and the gap in literature with precision and evidence.', proficient: 'Identifies an HCI problem with reasonable clarity. Gap in literature is noted but not fully evidenced.', developing: 'Problem is vague or too broad. Affected population or motivation is unclear.', insufficient: 'Problem statement is missing or not related to HCI.' },
+      { name: 'Research Questions', weight: 20,
+        excellent: '2–3 focused, researchable HCI questions that are specific, non-trivial, and clearly connect to the problem statement.', proficient: 'Questions are related to the problem but may be too broad or vague. One may not be directly researchable.', developing: 'Questions are present but unclear or not appropriate for HCI research methodology.', insufficient: 'Research questions are missing or are not research questions (e.g., design solutions stated as questions).' },
+      { name: 'Annotated Bibliography', weight: 25,
+        excellent: '8–10 relevant, scholarly sources with substantive annotations (summarize + critically evaluate + connect to your project). Mix of HCI and domain literature.', proficient: '8–10 sources present. Annotations are present but primarily descriptive — missing critical evaluation or project connection.', developing: 'Fewer than 8 sources or annotations are minimal (1–2 sentences each). Sources may not be scholarly.', insufficient: 'Bibliography is missing, has fewer than 5 sources, or sources are not scholarly.' },
+      { name: 'Methods Overview', weight: 20,
+        excellent: 'Clearly proposes 2+ user research methods with specific, well-justified reasoning connecting the method to the research questions.', proficient: 'Methods are named and briefly justified but connection to research questions is surface-level.', developing: 'Methods mentioned without justification, or only one method proposed.', insufficient: 'Methods section is missing or describes design solutions rather than research methods.' },
+      { name: 'Positionality Statement', weight: 15,
+        excellent: 'Thoughtful, specific reflection on how identity, background, and assumptions may shape the research. Shows genuine self-awareness.', proficient: 'Reflects on positionality with some specificity. Connection to the research project is present but could be deeper.', developing: 'Statement is vague or generic. Does not clearly connect to the specific research context.', insufficient: 'Positionality statement is missing or consists of a single generic sentence.' },
+    ]
+  },
+  {
+    id: 'm2', label: 'Milestone 2', title: 'User Research Report', points: 100, due: 'Week 6 · Sunday, Feb 17',
+    desc: 'Evaluates the rigor of your user research design, data quality, and ability to synthesize findings into actionable design implications.',
+    criteria: [
+      { name: 'Methods Section', weight: 20,
+        excellent: 'Fully documents who participated (3–5+), how data was collected, and why methods were chosen. Sufficient detail to replicate.', proficient: 'Participants and methods described. Some detail may be missing (e.g., sampling rationale or number of sessions).', developing: 'Methods section is present but lacks important details. Rationale for method choice is absent.', insufficient: 'Methods section is missing or describes a single informal conversation.' },
+      { name: 'Data Collection Artifacts', weight: 15,
+        excellent: 'Interview guide, observation protocol, or survey instrument included. Questions are well-designed (open-ended, non-leading, sequenced logically).', proficient: 'Artifact is included but has some leading questions, gaps, or sequencing issues.', developing: 'Artifact is very brief or has significant methodological problems.', insufficient: 'No data collection artifact included.' },
+      { name: 'Findings', weight: 25,
+        excellent: 'Clear, well-organized themes with rich supporting evidence (specific quotes, detailed observations, data). Findings are analytically grounded.', proficient: 'Themes are present with some evidence. May be somewhat summary-level rather than analytically deep.', developing: 'Findings are vague or lack evidence. May present data without interpretation.', insufficient: 'No findings section or findings are entirely anecdotal without evidence.' },
+      { name: 'Synthesis Artifact', weight: 20,
+        excellent: 'Affinity diagram or equivalent clearly shows how raw data was organized into insights. All major themes are traceable to the data.', proficient: 'Synthesis artifact is present and shows some organization of data into categories.', developing: 'Artifact is included but the organization is unclear or themes do not map to the data.', insufficient: 'No synthesis artifact provided.' },
+      { name: 'Design Implications', weight: 20,
+        excellent: '3–5 specific, actionable implications that directly and explicitly connect to the findings. Each implication is concrete (not "improve usability").', proficient: 'Implications are present and connected to findings but may be vague or not all directly actionable.', developing: 'Implications are generic or disconnected from the actual findings.', insufficient: 'Design implications are missing.' },
+    ]
+  },
+  {
+    id: 'm3', label: 'Milestone 3', title: 'Prototype + Design Rationale', points: 100, due: 'Week 9 · Sunday, Mar 10',
+    desc: 'Evaluates the quality of your hi-fi prototype and how clearly you can articulate and justify design decisions through research.',
+    criteria: [
+      { name: 'Hi-Fi Prototype Quality', weight: 30,
+        excellent: 'Figma prototype covers core user flow with 5+ screens/states. Interactions are realistic, visual design is consistent and polished.', proficient: 'Prototype has 5+ screens with basic interactions. Some inconsistencies in visual design.', developing: 'Prototype has fewer than 5 screens or interactions are minimal/broken.', insufficient: 'No hi-fi prototype submitted, or prototype is clearly a wireframe with no visual design.' },
+      { name: 'Design Rationale', weight: 30,
+        excellent: '3–4 pages. Every major design decision is explicitly connected to a specific research finding or interaction design principle. Reasoning is clear and specific.', proficient: 'Rationale is present and connects decisions to research, but some connections are vague or assumptions are unstated.', developing: 'Rationale describes design decisions but does not connect them to research findings.', insufficient: 'Design rationale is missing or is a feature list rather than justification.' },
+      { name: 'Accessibility Documentation', weight: 20,
+        excellent: 'WCAG 2.1 checklist completed. Issues are specifically identified with the WCAG criterion cited, and a fix is documented for each.', proficient: 'Checklist completed with some issues identified. Fixes may be vague for some items.', developing: 'Checklist is partially completed or issues are noted without fixes.', insufficient: 'No accessibility documentation provided.' },
+      { name: 'Lo-Fi to Hi-Fi Evolution', weight: 20,
+        excellent: 'Before/after sketches clearly show the evolution. Key changes are explained with specific reasoning connecting each change to feedback received.', proficient: 'Before/after sketches are present. Some changes are explained but reasoning may be brief.', developing: 'Only hi-fi or only lo-fi is shown, or changes are not explained.', insufficient: 'Lo-fi to hi-fi evolution section is missing.' },
+    ]
+  },
+  {
+    id: 'm4', label: 'Milestone 4', title: 'Evaluation Findings Report', points: 100, due: 'Week 12 · Sunday, Mar 31',
+    desc: 'Evaluates the rigor of your evaluation plan, quality of data collection, and ability to synthesize findings into evidence-based recommendations.',
+    criteria: [
+      { name: 'Evaluation Plan', weight: 15,
+        excellent: 'Documents participants, tasks (as realistic scenarios), measures, and methods clearly. Protocol is replicable.', proficient: 'Plan is present with most elements. Task scenarios may be instructions rather than goals.', developing: 'Evaluation plan is vague or missing key components.', insufficient: 'No evaluation plan provided.' },
+      { name: 'Quantitative Results', weight: 20,
+        excellent: 'Reports task completion rates, time on task, and SUS scores accurately. Data is clearly presented with appropriate visualizations.', proficient: 'Quantitative data reported but may be missing one measure or visualizations are unclear.', developing: 'Quantitative data present but not interpreted or missing significant measures.', insufficient: 'No quantitative results reported.' },
+      { name: 'Qualitative Findings', weight: 25,
+        excellent: 'Rich themes from think-aloud and interviews with specific supporting evidence. Coding process is transparent.', proficient: 'Themes are present with some evidence. May be somewhat descriptive.', developing: 'Findings are vague or quotes are cherry-picked without analytical context.', insufficient: 'No qualitative findings reported.' },
+      { name: 'Heuristic Evaluation', weight: 20,
+        excellent: 'All violations clearly identified with specific heuristic cited, description of the issue, affected users, and severity rating (1–4) justified.', proficient: 'Violations identified with heuristics cited. Severity ratings present but some may lack justification.', developing: 'Some violations identified but heuristics not always cited or severity ratings absent.', insufficient: 'Heuristic evaluation section is missing.' },
+      { name: 'Prioritized Recommendations', weight: 20,
+        excellent: '5+ specific redesign recommendations with severity ratings. Each recommendation is directly grounded in evidence from both qual and quant findings.', proficient: 'Recommendations present and connected to findings. Some may lack specificity.', developing: 'Recommendations are generic or not clearly connected to findings.', insufficient: 'No recommendations provided or fewer than 3.' },
+    ]
+  },
+  {
+    id: 'final', label: 'Final Paper', title: 'CHI-Style Research Paper', points: 100, due: 'Week 15 · Monday, Apr 21',
+    desc: 'Evaluates the scholarly quality, completeness, and coherence of your final 10–14 page CHI-style research paper.',
+    criteria: [
+      { name: 'Abstract & Introduction', weight: 10,
+        excellent: 'Abstract succinctly summarizes the paper\'s contribution. Introduction clearly motivates the problem, states research questions, and outlines contributions.', proficient: 'Abstract and intro are present and clear but may overstate claims or miss one element.', developing: 'Abstract is too vague or intro does not clearly state research questions.', insufficient: 'Abstract or introduction is missing.' },
+      { name: 'Related Work', weight: 20,
+        excellent: '15+ sources synthesized analytically — not a list of summaries. Clearly positions the current work relative to prior research.', proficient: 'Related work is present with 15+ sources. May be more summary-style than synthetic.', developing: 'Fewer than 15 sources or related work is a series of disconnected summaries.', insufficient: 'Related work section is missing or has fewer than 8 sources.' },
+      { name: 'Methods, Findings & Design', weight: 25,
+        excellent: 'All sections from Milestones 1–3 are integrated coherently. Methods are replicable. Findings are evidence-based. Design decisions are justified.', proficient: 'Sections are present and adequately detailed. Integration between sections is mostly clear.', developing: 'Sections are present but read as pasted-in milestone sections rather than integrated narrative.', insufficient: 'One or more of these sections is missing.' },
+      { name: 'Evaluation & Discussion', weight: 25,
+        excellent: 'Evaluation findings are clearly reported. Discussion interprets findings meaningfully, addresses limitations honestly, and discusses implications for HCI.', proficient: 'Evaluation reported clearly. Discussion is present but implications may be surface-level.', developing: 'Evaluation reported but discussion is brief or does not address limitations.', insufficient: 'Evaluation or discussion section is missing.' },
+      { name: 'Writing Quality & Citations', weight: 20,
+        excellent: 'Clear, precise academic writing throughout. All sources properly cited in IEEE format. Paper is 10–14 pages, well-structured, and free of significant errors.', proficient: 'Writing is clear with minor errors. IEEE citations mostly correct. Within page limits.', developing: 'Writing has recurring errors. Citations inconsistent. Paper may be outside page limits.', insufficient: 'Writing is unclear or unpolished. Citations are missing or wrong format.' },
+    ]
+  },
+  {
+    id: 'presentation', label: 'Presentation', title: 'Final Showcase Presentation', points: 100, due: 'Week 15 · Monday, Apr 21 (in class)',
+    desc: 'Evaluates your ability to communicate your research clearly, demonstrate your prototype effectively, and respond to questions.',
+    criteria: [
+      { name: 'Research Communication', weight: 30,
+        excellent: 'Presentation clearly communicates the problem, research process, findings, and contributions. Narrative is compelling and well-structured for a mixed audience.', proficient: 'Presentation covers key elements but some transitions or explanations may be unclear.', developing: 'Presentation covers the project but the narrative is hard to follow or key elements are missing.', insufficient: 'Presentation is incomplete or does not address the research.' },
+      { name: 'Prototype Demonstration', weight: 25,
+        excellent: 'Live prototype demo is smooth, covers the core user flow, and is clearly connected to the research findings. Demonstrates key design decisions.', proficient: 'Demo is present and functional. Connection to research findings could be made more explicit.', developing: 'Demo has technical issues or does not effectively communicate the design.', insufficient: 'No prototype demo included.' },
+      { name: 'Slide Design & Visual Communication', weight: 20,
+        excellent: 'Slides support rather than replicate speech. Visuals are clear, consistent, and enhance understanding. Text is minimal and purposeful.', proficient: 'Slides are readable and organized. Some slides may have too much text.', developing: 'Slides are dense or visual design detracts from the presentation.', insufficient: 'No slides, or slides are a bullet-point dump that is read verbatim.' },
+      { name: 'Q&A Response', weight: 25,
+        excellent: 'Responds to questions with clarity, intellectual honesty, and scholarly grounding. Acknowledges limitations thoughtfully.', proficient: 'Responds adequately to most questions. May struggle with one or two more challenging questions.', developing: 'Responses are vague or avoid addressing the question directly.', insufficient: 'Unable to respond to questions or becomes defensive.' },
+    ]
+  }
+];
+
+const nav = document.getElementById('rubricNav');
+const panels = document.getElementById('rubricPanels');
+function showRubric(id) {
+  document.querySelectorAll('.rubric-nav-btn')
+    .forEach(b => b.classList.remove('active'));
+
+  document.querySelectorAll('.rubric-panel')
+    .forEach(p => p.classList.remove('active'));
+
+  const btn = document.querySelector(`[data-target="${id}"]`);
+  const panel = document.getElementById('panel-' + id);
+
+  if (btn) btn.classList.add('active');
+  if (panel) panel.classList.add('active');
+}
+rubrics.forEach((r, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'rubric-nav-btn' + (i === 0 ? ' active' : '');
+  btn.textContent = r.label;
+  btn.dataset.target = r.id;
+//   const btn = document.createElement('button');
+//   btn.className = 'rubric-nav-btn' + (i === 0 ? ' active' : '');
+//   btn.textContent = r.label;
+//   btn.onclick = () => {
+//     document.querySelectorAll('.rubric-nav-btn').forEach(b => b.classList.remove('active'));
+//     document.querySelectorAll('.rubric-panel').forEach(p => p.classList.remove('active'));
+//     btn.classList.add('active');
+//     document.getElementById('panel-' + r.id).classList.add('active');
+//   };
+  btn.onclick = () => showRubric(r.id);
+  nav.appendChild(btn);
+
+  const panel = document.createElement('div');
+  panel.className = 'rubric-panel' + (i === 0 ? ' active' : '');
+  panel.id = 'panel-' + r.id;
+
+  const totalPts = r.criteria.reduce((s, c) => s + c.weight, 0);
+
+  panel.innerHTML = `
+    <div class="rubric-header">
+      <h2>${r.title}</h2>
+      <p>${r.desc}</p>
+      <div class="rubric-meta">
+        <span>📅 ${r.due}</span>
+        <span>📊 ${r.points} points</span>
+        <span>📋 ${r.criteria.length} criteria</span>
+      </div>
+    </div>
+    <div class="criteria-table-wrap">
+      <table class="rubric-t">
+        <thead>
+          <tr>
+            <th>Criterion</th>
+            <th style="background:#f0fdf4;">Excellent<br><span style="font-weight:400;">100–90%</span></th>
+            <th style="background:#fefce8;">Proficient<br><span style="font-weight:400;">89–75%</span></th>
+            <th style="background:#fff7ed;">Developing<br><span style="font-weight:400;">74–60%</span></th>
+            <th style="background:#fef2f2;">Insufficient<br><span style="font-weight:400;">&lt;60%</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${r.criteria.map(c => `
+            <tr>
+              <td>${c.name}<span class="pts">${c.weight} pts</span></td>
+              <td>${c.excellent}</td>
+              <td>${c.proficient}</td>
+              <td>${c.developing}</td>
+              <td>${c.insufficient}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="rubric-total">
+      <span>Total possible:</span>
+      <strong>${r.points} points</strong>
+    </div>
+    <div style="margin-top:1rem;padding:0.75rem 1rem;background:var(--surface-alt);border-radius:var(--radius-sm);font-size:0.8rem;color:var(--text-muted);">
+      💡 <strong>Tip:</strong> Use this rubric as a checklist before submitting. Each criterion in the "Excellent" column describes what a full-credit response looks like. If you cannot check every box, revise before submitting.
+    </div>
+  `;
+  panels.appendChild(panel);
+});
+
+// Handle anchor links from other pages
+// if (location.hash) {
+//   const targetId = location.hash.replace('#', '');
+//   const btn = Array.from(document.querySelectorAll('.rubric-nav-btn')).find(b => b.textContent.toLowerCase().includes(targetId));
+//   if (btn) btn.click();
+// }
+if (location.hash) {
+  const targetId = location.hash.replace('#', '');
+  showRubric(targetId);
+}
+</script>
+</body>
+</html>

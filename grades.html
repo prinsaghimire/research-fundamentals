@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grades — HCI Research Fundamentals</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .grade-hero {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white; border-radius: var(--radius); padding: 1.75rem 2rem;
+    display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.75rem;
+  }
+  .grade-big { text-align: center; }
+  .grade-big .letter { font-size: 3.5rem; font-weight: 800; line-height: 1; }
+  .grade-big .pct { font-size: 1rem; opacity: 0.85; margin-top: 0.2rem; }
+  .grade-hero-sep { width: 1px; background: rgba(255,255,255,0.2); height: 60px; }
+  .grade-hero-stats { display: flex; gap: 2rem; flex-wrap: wrap; }
+  .gh-stat .num { font-size: 1.4rem; font-weight: 700; }
+  .gh-stat .lbl { font-size: 0.74rem; opacity: 0.75; }
+  .grade-hero .note { font-size: 0.78rem; opacity: 0.7; margin-top: auto; }
+
+  .category-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; overflow: hidden; }
+  .category-header {
+    padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .category-header:hover { background: var(--surface-alt); }
+  .cat-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+  .cat-info { flex: 1; }
+  .cat-info h3 { font-size: 0.9rem; margin: 0 0 0.25rem; }
+  .cat-meta { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+  .cat-meta span { font-size: 0.74rem; color: var(--text-muted); }
+  .cat-bar-wrap { width: 120px; }
+  .cat-bar-bg { background: var(--border); border-radius: 99px; height: 7px; overflow: hidden; }
+  .cat-bar-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
+  .cat-score { font-size: 0.9rem; font-weight: 700; min-width: 70px; text-align: right; }
+  .cat-chevron { color: var(--text-muted); transition: transform 0.2s; }
+  .category-block.open .cat-chevron { transform: rotate(180deg); }
+  .category-body { display: none; border-top: 1px solid var(--border); }
+  .category-block.open .category-body { display: block; }
+  .grade-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.7rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.845rem; transition: background 0.1s; }
+  .grade-item:last-child { border-bottom: none; }
+  .grade-item:hover { background: var(--surface-alt); }
+  .grade-item .item-name { flex: 1; }
+  .grade-item .item-due { font-size: 0.75rem; color: var(--text-muted); min-width: 80px; }
+  .grade-item .item-score { font-weight: 700; min-width: 55px; text-align: right; }
+  .grade-item .item-score.earned { color: var(--primary); }
+  .grade-item .item-score.zero { color: var(--danger); }
+  .grade-item .item-score.pending { color: var(--text-muted); }
+  .dropped-item { opacity: 0.45; }
+  .dropped-label { font-size: 0.68rem; color: var(--text-muted); background: var(--surface-alt); border-radius: 20px; padding: 0.1rem 0.45rem; margin-left: 0.3rem; }
+
+  .scale-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem; margin-top: 0.75rem; }
+  .scale-chip { padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); text-align: center; }
+  .scale-chip .grade-l { font-size: 1.1rem; font-weight: 800; }
+  .scale-chip .grade-r { font-size: 0.72rem; margin-top: 0.1rem; }
+
+  .entry-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
+  .entry-modal-overlay.open { display: flex; }
+  .entry-modal { background: var(--surface); border-radius: var(--radius); width: min(420px, 95vw); padding: 1.5rem; box-shadow: var(--shadow-md); }
+  .entry-modal h3 { margin-bottom: 1rem; font-size: 1rem; }
+  .entry-modal .form-row { display: flex; gap: 0.75rem; }
+  .entry-modal .form-row .form-group { flex: 1; }
+  .entry-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">HCI</div><div class="logo-text">Research<br>Fundamentals</div></div>
+    <ul class="nav-list">
+      <li><a href="index.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a></li>
+      <li><a href="syllabus.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Syllabus</a></li>
+      <li><a href="schedule.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a></li>
+      <li><a href="modules.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Modules</a></li>
+      <li><a href="assignments.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Assignments</a></li>
+      <li><a href="quizzes.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quizzes</a></li>
+      <li><a href="discussions.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Discussions</a></li>
+      <li><a href="activities.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Activities</a></li>
+      <li><a href="grades.html" class="nav-link active"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grades</a></li>
+      <li><a href="rubrics.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Rubrics</a></li>
+    </ul>
+  </nav>
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="page-title">Grades</span>
+      <div class="topbar-actions">
+        <button class="btn btn-sm btn-outline" onclick="openEntryModal()">+ Enter Grade</button>
+        <span class="semester-badge">Spring 2026</span>
+      </div>
+    </header>
+    <div class="content-body">
+      <div id="gradeHero" class="grade-hero">
+        <div class="grade-big"><div class="letter" id="heroLetter">—</div><div class="pct" id="heroPct">No grades yet</div></div>
+        <div class="grade-hero-sep"></div>
+        <div class="grade-hero-stats">
+          <div class="gh-stat"><div class="num" id="heroEarned">0</div><div class="lbl">Points Earned</div></div>
+          <div class="gh-stat"><div class="num" id="heroPossible">0</div><div class="lbl">Points Graded</div></div>
+          <div class="gh-stat"><div class="num" id="heroItems">0</div><div class="lbl">Items Graded</div></div>
+        </div>
+        <div class="grade-hero-sep"></div>
+        <div style="font-size:0.78rem;opacity:0.75;max-width:200px;line-height:1.5;">Grades update automatically as you complete quizzes and activities. Use "+ Enter Grade" for instructor-graded items.</div>
+      </div>
+
+      <div id="categoriesContainer"></div>
+
+      <div class="section-header" style="margin-top:2rem;"><h2 class="section-title">Grading Scale</h2></div>
+      <div class="scale-grid">
+        <div class="scale-chip" style="background:#dcfce7;"><div class="grade-l" style="color:#166534;">A</div><div class="grade-r" style="color:#166534;">93–100</div></div>
+        <div class="scale-chip" style="background:#d1fae5;"><div class="grade-l" style="color:#065f46;">A−</div><div class="grade-r" style="color:#065f46;">90–92</div></div>
+        <div class="scale-chip" style="background:#fef9c3;"><div class="grade-l" style="color:#854d0e;">B+</div><div class="grade-r" style="color:#854d0e;">87–89</div></div>
+        <div class="scale-chip" style="background:#fef9c3;"><div class="grade-l" style="color:#854d0e;">B</div><div class="grade-r" style="color:#854d0e;">83–86</div></div>
+        <div class="scale-chip" style="background:#fef9c3;"><div class="grade-l" style="color:#854d0e;">B−</div><div class="grade-r" style="color:#854d0e;">80–82</div></div>
+        <div class="scale-chip" style="background:#ffedd5;"><div class="grade-l" style="color:#9a3412;">C+</div><div class="grade-r" style="color:#9a3412;">77–79</div></div>
+        <div class="scale-chip" style="background:#ffedd5;"><div class="grade-l" style="color:#9a3412;">C</div><div class="grade-r" style="color:#9a3412;">70–76</div></div>
+        <div class="scale-chip" style="background:#fee2e2;"><div class="grade-l" style="color:#991b1b;">F</div><div class="grade-r" style="color:#991b1b;">Below 70</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Grade Entry Modal -->
+<div class="entry-modal-overlay" id="entryModal">
+  <div class="entry-modal">
+    <h3>Enter Instructor Grade</h3>
+    <div class="form-group">
+      <label for="eItemName">Assignment Name</label>
+      <select id="eItemSelect">
+        <option value="">— Select item —</option>
+        <option value="assign_topic">Topic Selection (10 pts)</option>
+        <option value="assign_m1">Milestone 1: Research Proposal (100 pts)</option>
+        <option value="assign_m2">Milestone 2: User Research Report (100 pts)</option>
+        <option value="assign_m3">Milestone 3: Prototype + Design Rationale (100 pts)</option>
+        <option value="assign_m4">Milestone 4: Evaluation Findings (100 pts)</option>
+        <option value="assign_final_paper">Final Research Paper (100 pts)</option>
+        <option value="assign_final_pres">Final Presentation (100 pts)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="eScore">Score Earned</label>
+        <input type="number" id="eScore" placeholder="e.g. 87" min="0">
+      </div>
+      <div class="form-group">
+        <label for="eMax">Out of (max)</label>
+        <input type="number" id="eMax" placeholder="e.g. 100" min="1">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="eFeedback">Instructor Feedback (optional)</label>
+      <textarea id="eFeedback" style="min-height:60px;" placeholder="Paste feedback here..."></textarea>
+    </div>
+    <div class="entry-actions">
+      <button class="btn btn-ghost" onclick="closeEntryModal()">Cancel</button>
+      <button class="btn" onclick="saveEntryGrade()">Save Grade</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+// ── Grade definitions ───────────────────────────────────────
+const categories = [
+  {
+    id: 'milestones', label: 'Milestone Assignments', icon: '✏️', bg: '#fff3e0', weight: 0.15, color: '#f59e0b',
+    items: [
+      { id: 'assign_topic', name: 'Project Topic Selection', due: 'Week 1', max: 10 },
+      { id: 'assign_m1', name: 'Milestone 1: Research Proposal', due: 'Week 3', max: 100 },
+      { id: 'assign_m2', name: 'Milestone 2: User Research Report', due: 'Week 6', max: 100 },
+      { id: 'assign_m3', name: 'Milestone 3: Prototype + Rationale', due: 'Week 9', max: 100 },
+      { id: 'assign_m4', name: 'Milestone 4: Evaluation Findings', due: 'Week 12', max: 100 }
+    ]
+  },
+  {
+    id: 'quizzes', label: 'Reading Quizzes', icon: '❓', bg: '#e3f2fd', weight: 0.20, color: '#2563eb',
+    note: 'Lowest 3 dropped automatically.',
+    items: Array.from({length:13}, (_,i) => ({ id:`quiz_q${i+1}`, name:`Quiz ${i+1}`, due:`Week ${i+1}`, max: 10 }))
+  },
+  {
+    id: 'activities', label: 'In-Class Activities', icon: '⭐', bg: '#f3e5f5', weight: 0.25, color: '#7c3aed',
+    note: 'Lowest 1 dropped automatically.',
+    items: Array.from({length:15}, (_,i) => ({ id:`act_a${i+1}`, name:`Activity ${i+1} — Week ${i+1}`, due:`Week ${i+1}`, max: 10 }))
+  },
+  {
+    id: 'final', label: 'Final Project', icon: '🎓', bg: '#e8f5e9', weight: 0.40, color: '#166534',
+    items: [
+      { id: 'assign_final_pres', name: 'Final Presentation & Showcase', due: 'Week 15', max: 100 },
+      { id: 'assign_final_paper', name: 'Final Research Paper', due: 'Week 15', max: 100 }
+    ]
+  }
+];
+
+function getLetterGrade(pct) {
+  if (pct >= 93) return 'A';
+  if (pct >= 90) return 'A−';
+  if (pct >= 87) return 'B+';
+  if (pct >= 83) return 'B';
+  if (pct >= 80) return 'B−';
+  if (pct >= 77) return 'C+';
+  if (pct >= 70) return 'C';
+  return 'F';
+}
+
+function calcCategory(cat, grades) {
+  let scores = cat.items.map(item => grades[item.id] ? grades[item.id].score : null);
+  let maxes  = cat.items.map(item => item.max);
+
+  // Drop lowest for quizzes (drop 3) and activities (drop 1)
+  if (cat.id === 'quizzes') {
+    const filled = scores.map((s,i) => s !== null ? {s, m: maxes[i], i} : null).filter(Boolean);
+    if (filled.length > 0) {
+      filled.sort((a,b) => (a.s/a.m) - (b.s/b.m));
+      const toDrop = Math.min(3, filled.length);
+      const dropIdx = new Set(filled.slice(0, toDrop).map(x => x.i));
+      scores = scores.map((s,i) => dropIdx.has(i) ? 'dropped' : s);
+    }
+  }
+  if (cat.id === 'activities') {
+    const filled = scores.map((s,i) => s !== null ? {s, m: maxes[i], i} : null).filter(Boolean);
+    if (filled.length > 0) {
+      filled.sort((a,b) => (a.s/a.m) - (b.s/b.m));
+      const dropIdx = new Set([filled[0].i]);
+      scores = scores.map((s,i) => dropIdx.has(i) ? 'dropped' : s);
+    }
+  }
+
+  const counted = scores.filter(s => s !== 'dropped' && s !== null);
+  const maxCounted = maxes.filter((_,i) => scores[i] !== 'dropped' && scores[i] !== null);
+  const earned = counted.reduce((a,b) => a+b, 0);
+  const possible = maxCounted.reduce((a,b) => a+b, 0);
+  return { scores, earned, possible, pct: possible > 0 ? earned/possible : null };
+}
+
+function renderGrades() {
+  const grades = GradeStore.get();
+  const container = document.getElementById('categoriesContainer');
+  container.innerHTML = '';
+
+  let totalWeightedScore = 0, totalWeight = 0;
+  let totalEarned = 0, totalPossible = 0, totalItems = 0;
+
+  categories.forEach(cat => {
+    const { scores, earned, possible, pct } = calcCategory(cat, grades);
+    if (possible > 0) {
+      totalWeightedScore += pct * cat.weight;
+      totalWeight += cat.weight;
+      totalEarned += earned;
+      totalPossible += possible;
+      totalItems += scores.filter(s => s !== null && s !== 'dropped').length;
+    }
+
+    const pctDisplay = pct !== null ? Math.round(pct * 100) + '%' : '—';
+    const scoreDisplay = pct !== null ? `${earned} / ${possible}` : '—';
+
+    const block = document.createElement('div');
+    block.className = 'category-block';
+    block.innerHTML = `
+      <div class="category-header" onclick="this.closest('.category-block').classList.toggle('open')">
+        <div class="cat-icon" style="background:${cat.bg}">${cat.icon}</div>
+        <div class="cat-info">
+          <h3>${cat.label}</h3>
+          <div class="cat-meta">
+            <span>Weight: ${Math.round(cat.weight*100)}%</span>
+            ${cat.note ? `<span style="color:var(--accent);">⚑ ${cat.note}</span>` : ''}
+            ${pct !== null ? `<span>${pctDisplay}</span>` : ''}
+          </div>
+        </div>
+        <div class="cat-bar-wrap">
+          <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${pct !== null ? Math.round(pct*100) : 0}%;background:${cat.color}"></div></div>
+        </div>
+        <div class="cat-score" style="color:${cat.color}">${scoreDisplay}</div>
+        <svg class="cat-chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="category-body">
+        ${cat.items.map((item, i) => {
+          const g = grades[item.id];
+          const dropped = scores[i] === 'dropped';
+          const scoreVal = g ? g.score : null;
+          let scoreHtml, statusHtml;
+          if (dropped) {
+            scoreHtml = `<span class="item-score pending">Dropped</span>`;
+            statusHtml = `<span class="dropped-label">dropped</span>`;
+          } else if (scoreVal !== null) {
+            const pctItem = Math.round((scoreVal / item.max) * 100);
+            scoreHtml = `<span class="item-score earned">${scoreVal} / ${item.max} <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted);">(${pctItem}%)</span></span>`;
+            statusHtml = `<span class="badge-status badge-graded">Graded</span>`;
+          } else {
+            scoreHtml = `<span class="item-score pending">— / ${item.max}</span>`;
+            statusHtml = `<span class="badge-status badge-upcoming">Pending</span>`;
+          }
+          return `
+            <div class="grade-item${dropped ? ' dropped-item' : ''}">
+              <span class="item-name">${item.name}${dropped ? '<span class="dropped-label">lowest</span>' : ''}</span>
+              <span class="item-due">${item.due}</span>
+              ${statusHtml}
+              ${scoreHtml}
+              ${g?.feedback ? `<span title="${g.feedback}" style="color:var(--info);cursor:help;font-size:0.85rem;">💬</span>` : ''}
+            </div>`;
+        }).join('')}
+      </div>`;
+    container.appendChild(block);
+  });
+
+  // Update hero
+  if (totalItems > 0) {
+    const overallPct = Math.round((totalWeightedScore / totalWeight) * 100);
+    document.getElementById('heroLetter').textContent = getLetterGrade(overallPct);
+    document.getElementById('heroPct').textContent = overallPct + '% Overall';
+    document.getElementById('heroEarned').textContent = totalEarned;
+    document.getElementById('heroPossible').textContent = totalPossible;
+    document.getElementById('heroItems').textContent = totalItems;
+  } else {
+    document.getElementById('heroLetter').textContent = '—';
+    document.getElementById('heroPct').textContent = 'No grades yet';
+  }
+}
+
+function openEntryModal() { document.getElementById('entryModal').classList.add('open'); }
+function closeEntryModal() { document.getElementById('entryModal').classList.remove('open'); }
+
+function saveEntryGrade() {
+  const id = document.getElementById('eItemSelect').value;
+  const score = parseFloat(document.getElementById('eScore').value);
+  const max = parseFloat(document.getElementById('eMax').value);
+  const feedback = document.getElementById('eFeedback').value.trim();
+  if (!id) { alert('Please select an assignment.'); return; }
+  if (isNaN(score) || score < 0) { alert('Please enter a valid score.'); return; }
+  if (isNaN(max) || max <= 0) { alert('Please enter a valid max points value.'); return; }
+  const g = GradeStore.get();
+  g[id] = { score, max, feedback, date: new Date().toISOString() };
+  localStorage.setItem('hci_course_grades', JSON.stringify(g));
+  closeEntryModal();
+  renderGrades();
+  document.getElementById('eItemSelect').value = '';
+  document.getElementById('eScore').value = '';
+  document.getElementById('eMax').value = '';
+  document.getElementById('eFeedback').value = '';
+}
+
+document.getElementById('entryModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeEntryModal(); });
+renderGrades();
+</script>
+</body>
+</html>
