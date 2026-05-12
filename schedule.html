@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedule — HCI Research Fundamentals</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .schedule-row { display: grid; grid-template-columns: 64px 1fr; gap: 0; position: relative; }
+  .week-num {
+    padding: 1.1rem 0.5rem 1.1rem 0;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding-top: 1.2rem;
+    position: relative;
+  }
+  .week-circle {
+    width: 36px; height: 36px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .week-circle.unit-start {
+    background: var(--primary);
+    color: white;
+  }
+  .week-line {
+    width: 2px;
+    background: var(--border);
+    flex: 1;
+    margin-top: 4px;
+  }
+  .week-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    transition: border-color 0.2s;
+  }
+  .week-card:hover { border-color: var(--primary-muted); }
+  .week-card.current-week { border-color: var(--primary); border-left: 3px solid var(--primary); }
+  .week-header { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  .week-title { font-weight: 700; font-size: 0.95rem; }
+  .week-date { font-size: 0.75rem; color: var(--text-muted); }
+  .unit-label {
+    font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+    background: var(--primary); color: white;
+    padding: 0.15rem 0.55rem; border-radius: 20px;
+  }
+  .week-items { display: flex; flex-direction: column; gap: 0.4rem; }
+  .week-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-size: 0.8rem;
+  }
+  .week-item .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-quiz { background: var(--info); }
+  .dot-assignment { background: var(--accent); }
+  .dot-activity { background: #a855f7; }
+  .dot-reading { background: var(--text-muted); }
+  .milestone-due {
+    margin-top: 0.6rem;
+    background: var(--accent-light);
+    border: 1px solid #fcd34d;
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #92400e;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">HCI</div><div class="logo-text">Research<br>Fundamentals</div></div>
+    <ul class="nav-list">
+      <li><a href="index.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a></li>
+      <li><a href="syllabus.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Syllabus</a></li>
+      <li><a href="schedule.html" class="nav-link active"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a></li>
+      <li><a href="modules.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Modules</a></li>
+      <li><a href="assignments.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Assignments</a></li>
+      <li><a href="quizzes.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quizzes</a></li>
+      <li><a href="discussions.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Discussions</a></li>
+      <li><a href="activities.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Activities</a></li>
+      <li><a href="grades.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grades</a></li>
+      <li><a href="rubrics.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Rubrics</a></li>
+    </ul>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="page-title">Course Schedule</span>
+      <div class="topbar-actions"><span class="semester-badge">Spring 2026</span></div>
+    </header>
+
+    <div class="content-body">
+      <h1 style="margin-bottom:0.35rem;">Course Schedule</h1>
+      <p class="text-muted text-sm" style="margin-bottom:1.25rem;">15 weeks · Mondays, 2:00–5:00 PM · Spring 2026</p>
+
+      <div class="legend">
+        <span class="legend-item"><span class="dot dot-quiz" style="display:inline-block;width:8px;height:8px;border-radius:50%;"></span> Quiz</span>
+        <span class="legend-item"><span class="dot dot-assignment" style="display:inline-block;width:8px;height:8px;border-radius:50%;"></span> Assignment Due</span>
+        <span class="legend-item"><span class="dot dot-activity" style="display:inline-block;width:8px;height:8px;border-radius:50%;"></span> Activity</span>
+        <span class="legend-item"><span class="dot dot-reading" style="display:inline-block;width:8px;height:8px;border-radius:50%;"></span> Reading</span>
+      </div>
+
+      <div id="scheduleContainer"></div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+const schedule = [
+  { week: 1, unit: 1, unitLabel: "Unit 1: Foundations of HCI", date: "Jan 13", title: "Module 1 — What is HCI? History, Models & Paradigms", items: [
+    { type: "reading", text: "Grudin's A Moving Target (excerpt)" },
+    { type: "activity", text: "Map a familiar technology to one of 3 HCI paradigms" },
+    { type: "quiz", text: "Quiz 1: Paradigms, timeline, key theorists" }
+  ]},
+  { week: 2, unit: 1, date: "Jan 20", title: "Module 2 — Research in HCI: Questions, Methods & Epistemology", items: [
+    { type: "reading", text: "2 published CHI papers (provided)" },
+    { type: "activity", text: "Workshop: Reframe the Question" },
+    { type: "quiz", text: "Quiz 2: Methods & epistemology" }
+  ]},
+  { week: 3, unit: 1, date: "Jan 27", title: "Module 3 — Ethics, Equity & Positionality in HCI", milestone: "Milestone 1: Research Proposal Due (Sunday)", items: [
+    { type: "reading", text: "Belmont Report summary" },
+    { type: "activity", text: "Fishbowl: Who is HCI designed for?" },
+    { type: "quiz", text: "Quiz 3: Ethics & equity" }
+  ]},
+  { week: 4, unit: 2, unitLabel: "Unit 2: User Research Methods", date: "Feb 3", title: "Module 4 — Interviews & Think-Aloud Protocols", items: [
+    { type: "activity", text: "Role-play interview pairs" },
+    { type: "activity", text: "Think-aloud lab" },
+    { type: "quiz", text: "Quiz 4: Interview design & observer bias" }
+  ]},
+  { week: 5, unit: 2, date: "Feb 10", title: "Module 5 — Observation, Contextual Inquiry & Diary Studies", items: [
+    { type: "activity", text: "Field observation (30 min public tech interaction)" },
+    { type: "activity", text: "Contextual inquiry simulation" },
+    { type: "quiz", text: "Quiz 5: Observation methods" }
+  ]},
+  { week: 6, unit: 2, date: "Feb 17", title: "Module 6 — Surveys, Questionnaires & Quantitative User Data", milestone: "Milestone 2: User Research Report Due (Sunday)", items: [
+    { type: "activity", text: "Survey design workshop" },
+    { type: "activity", text: "Data lab: SUS scores, Likert results" },
+    { type: "quiz", text: "Quiz 6: Survey design & statistics" }
+  ]},
+  { week: 7, unit: 3, unitLabel: "Unit 3: Design & Prototyping", date: "Feb 24", title: "Module 7 — Ideation, Design Thinking & Design Justice", items: [
+    { type: "reading", text: "Costanza-Chock — Design Justice (excerpt)" },
+    { type: "activity", text: "Ideation sprint: 20 ideas in 20 minutes" },
+    { type: "quiz", text: "Quiz 7: Ideation techniques" }
+  ]},
+  { week: 8, unit: 3, date: "Mar 3", title: "Module 8 — Lo-Fi Prototyping & Paper Prototyping", items: [
+    { type: "activity", text: "Paper prototype lab" },
+    { type: "activity", text: "Speed critique (3 stations)" },
+    { type: "quiz", text: "Quiz 8: Fidelity & prototyping" }
+  ]},
+  { week: 9, unit: 3, date: "Mar 10", title: "Module 9 — Hi-Fi Prototyping, Accessibility & Interaction Design", milestone: "Milestone 3: Prototype + Design Rationale Due (Sunday)", items: [
+    { type: "activity", text: "Figma lab: hi-fi prototype" },
+    { type: "activity", text: "Accessibility audit (WCAG 2.1)" },
+    { type: "quiz", text: "Quiz 9: Interaction design principles" }
+  ]},
+  { week: 10, unit: 4, unitLabel: "Unit 4: Evaluation & Testing", date: "Mar 17", title: "Module 10 — Usability Testing", items: [
+    { type: "activity", text: "Protocol workshop: usability test plan" },
+    { type: "activity", text: "In-class usability test" },
+    { type: "quiz", text: "Quiz 10: Usability testing" }
+  ]},
+  { week: 11, unit: 4, date: "Mar 24", title: "Module 11 — Heuristic Evaluation & Expert Review", items: [
+    { type: "activity", text: "Heuristic evaluation exercise (Nielsen's 10)" },
+    { type: "activity", text: "Aggregation lab: combine 3 evaluators" },
+    { type: "quiz", text: "Quiz 11: Heuristic violations" }
+  ]},
+  { week: 12, unit: 4, date: "Mar 31", title: "Module 12 — Analyzing & Communicating Evaluation Data", milestone: "Milestone 4: Evaluation Findings Report Due (Sunday)", items: [
+    { type: "activity", text: "Coding lab: qualitative thematic analysis" },
+    { type: "activity", text: "Data visualization workshop" },
+    { type: "quiz", text: "Quiz 12: Data analysis & visualization" }
+  ]},
+  { week: 13, unit: 5, unitLabel: "Unit 5: Research Communication", date: "Apr 7", title: "Module 13 — Writing for HCI: Structure, Style & Scholarly Conventions", items: [
+    { type: "activity", text: "Paper anatomy workshop: dissect a CHI paper" },
+    { type: "activity", text: "Writing lab: related work & methods sections" },
+    { type: "quiz", text: "Quiz 13: Academic writing" }
+  ]},
+  { week: 14, unit: 5, date: "Apr 14", title: "Module 14 — Presentations, Demos & Research Communication", items: [
+    { type: "activity", text: "Practice presentation: 5-min elevator pitch" },
+    { type: "activity", text: "Demo day prep: prototype troubleshoot" }
+  ]},
+  { week: 15, unit: 5, date: "Apr 21", title: "Module 15 — Final Showcase & Reflection", milestone: "Final Research Paper + Presentation (Monday, in class)", items: [
+    { type: "activity", text: "Final presentations (15 min each + Q&A)" }
+  ]},
+];
+
+const dotClass = { quiz: 'dot-quiz', assignment: 'dot-assignment', activity: 'dot-activity', reading: 'dot-reading' };
+const container = document.getElementById('scheduleContainer');
+let lastUnit = 0;
+
+schedule.forEach((row, i) => {
+  const isUnitStart = row.unit !== lastUnit;
+  if (isUnitStart) lastUnit = row.unit;
+
+  const div = document.createElement('div');
+  div.className = 'schedule-row';
+  div.innerHTML = `
+    <div class="week-num">
+      <div class="week-circle ${isUnitStart ? 'unit-start' : ''}">W${row.week}</div>
+      ${i < schedule.length - 1 ? '<div class="week-line"></div>' : ''}
+    </div>
+    <div>
+      <div class="week-card ${row.week === 1 ? 'current-week' : ''}">
+        <div class="week-header">
+          ${isUnitStart && row.unitLabel ? `<span class="unit-label">${row.unitLabel}</span>` : ''}
+          <span class="week-title">${row.title}</span>
+          <span class="week-date">📅 ${row.date}, 2026</span>
+        </div>
+        <div class="week-items">
+          ${row.items.map(item => `
+            <div class="week-item">
+              <span class="dot ${dotClass[item.type]}" style="display:inline-block;width:7px;height:7px;border-radius:50%;"></span>
+              <span>${item.text}</span>
+            </div>
+          `).join('')}
+        </div>
+        ${row.milestone ? `<div class="milestone-due">⚑ ${row.milestone}</div>` : ''}
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+});
+</script>
+</body>
+</html>

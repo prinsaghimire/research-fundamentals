@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quizzes — HCI Research Fundamentals</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .quiz-list { display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 2rem; }
+  .quiz-row {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 0.9rem 1.25rem; display: flex; align-items: center; gap: 1rem; cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .quiz-row:hover { border-color: var(--primary-muted); box-shadow: var(--shadow-sm); }
+  .quiz-row.completed { border-left: 3px solid var(--primary); }
+  .quiz-num {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: var(--primary-light); color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem; flex-shrink: 0;
+  }
+  .quiz-row.completed .quiz-num { background: var(--primary); color: white; }
+  .quiz-row-info { flex: 1; }
+  .quiz-row-info h4 { font-size: 0.875rem; margin: 0 0 0.2rem; }
+  .quiz-row-info span { font-size: 0.75rem; color: var(--text-muted); }
+  .quiz-score { font-size: 0.85rem; font-weight: 700; color: var(--primary); min-width: 50px; text-align: right; }
+  /* Quiz modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: var(--radius);
+    width: min(560px, 95vw); max-height: 90vh;
+    overflow-y: auto; padding: 1.75rem;
+    box-shadow: var(--shadow-md);
+  }
+  .modal-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; }
+  .modal-header h2 { font-size: 1rem; }
+  .modal-close { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1.25rem; }
+  .quiz-result {
+    background: var(--primary-light); border: 1px solid var(--primary-muted);
+    border-radius: var(--radius-sm); padding: 1rem; text-align: center; margin-top: 1rem;
+    display: none;
+  }
+  .quiz-result.show { display: block; }
+  .quiz-result .score-big { font-size: 2rem; font-weight: 800; color: var(--primary); }
+  .dropped-note { background: var(--accent-light); border: 1px solid #fcd34d; border-radius: var(--radius-sm); padding: 0.75rem 1rem; font-size: 0.82rem; color: #92400e; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">HCI</div><div class="logo-text">Research<br>Fundamentals</div></div>
+    <ul class="nav-list">
+      <li><a href="index.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a></li>
+      <li><a href="syllabus.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Syllabus</a></li>
+      <li><a href="schedule.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a></li>
+      <li><a href="modules.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Modules</a></li>
+      <li><a href="assignments.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Assignments</a></li>
+      <li><a href="quizzes.html" class="nav-link active"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quizzes</a></li>
+      <li><a href="discussions.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Discussions</a></li>
+      <li><a href="activities.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Activities</a></li>
+      <li><a href="grades.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grades</a></li>
+      <li><a href="rubrics.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Rubrics</a></li>
+    </ul>
+  </nav>
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="page-title">Quizzes</span>
+      <div class="topbar-actions"><span class="semester-badge">Spring 2026</span></div>
+    </header>
+    <div class="content-body">
+      <h1 style="margin-bottom:0.25rem;">Reading Quizzes</h1>
+      <p class="text-muted text-sm" style="margin-bottom:1rem;">13 quizzes total · 10 points each · Lowest 3 scores dropped · 20% of final grade</p>
+      <div class="dropped-note">⚑ Your lowest 3 quiz scores will automatically be dropped when calculating your final grade. Don't stress over early struggles!</div>
+      <div class="quiz-list" id="quizList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="quizModal">
+  <div class="modal" id="quizContent"></div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+const quizData = [
+  { id: 'q1', num: 1, title: 'HCI Paradigms & History', week: 'Week 1', questions: [
+    { q: 'Which of the following best describes HCI\'s "third paradigm"?', options: ['Engineering efficiency and task performance', 'Cognitive science models of the mind', 'Phenomenological and experiential approaches', 'Statistical usability benchmarking'], answer: 2 },
+    { q: 'Paul Fitts is best known in HCI for:', options: ['Designing the first graphical user interface', 'A predictive model of pointing movement time', 'Coining the term "user experience"', 'Developing contextual inquiry methodology'], answer: 1 },
+    { q: 'Don Norman\'s concept of "affordances" refers to:', options: ['The visual appearance of an interface', 'Perceived action possibilities offered by an object', 'The efficiency of a design solution', 'Task completion rate benchmarks'], answer: 1 },
+    { q: 'The shift from batch computing to interactive computing was primarily driven by:', options: ['Decreasing costs of transistors', 'The introduction of the mouse', 'Time-sharing systems that allowed real-time interaction', 'The invention of the internet'], answer: 2 },
+    { q: 'Equity and inclusion in HCI primarily concern:', options: ['Making interfaces faster for all users', 'Ensuring diverse populations can access and benefit from technology', 'Reducing the cost of software development', 'Standardizing interface design patterns'], answer: 1 }
+  ]},
+  { id: 'q2', num: 2, title: 'Research Methods & Epistemology', week: 'Week 2', questions: [
+    { q: 'A research question that asks "How many users complete the checkout flow?" is best described as:', options: ['Qualitative', 'Quantitative', 'Interpretive', 'Ethnographic'], answer: 1 },
+    { q: 'Which method is most appropriate for exploring why users struggle with a complex workflow?', options: ['A/B testing', 'Semi-structured interviews', 'Heuristic evaluation', 'Web analytics'], answer: 1 },
+    { q: 'Mixed-methods research in HCI combines:', options: ['Two different quantitative instruments', 'Qualitative and quantitative approaches', 'HCI and computer science disciplines', 'Field studies and lab experiments only'], answer: 1 },
+    { q: 'Validity in HCI research means:', options: ['The study has a large sample size', 'The study measures what it claims to measure', 'The findings can be replicated exactly', 'The participants are expert users'], answer: 1 },
+    { q: 'Positionality in research refers to:', options: ['The researcher\'s location during data collection', 'How the researcher\'s identity and assumptions may influence the study', 'The hierarchical position of participants', 'The statistical position of data points'], answer: 1 }
+  ]},
+  { id: 'q3', num: 3, title: 'Ethics & Equity in HCI', week: 'Week 3', questions: [
+    { q: 'Informed consent in HCI research requires:', options: ['Participants sign a legal document', 'Participants understand and voluntarily agree to participate', 'Institutional approval only', 'Participants be compensated financially'], answer: 1 },
+    { q: 'The Belmont Report established three core principles for research ethics. Which is NOT one of them?', options: ['Respect for persons', 'Beneficence', 'Justice', 'Efficiency'], answer: 3 },
+    { q: 'Dark patterns in UI design are problematic primarily because:', options: ['They increase development time', 'They deceive users into unintended actions', 'They are not visually appealing', 'They reduce loading speed'], answer: 1 },
+    { q: 'Algorithmic bias in facial recognition systems most directly illustrates which HCI concern?', options: ['Performance benchmarking', 'Equity and representation in training data', 'User interface aesthetics', 'Network latency issues'], answer: 1 },
+    { q: 'A researcher studying an indigenous community\'s technology use should FIRST:', options: ['Design the survey instrument', 'Engage community members as co-researchers and seek community consent', 'Publish a research proposal', 'Conduct a literature review'], answer: 1 }
+  ]},
+  { id: 'q4', num: 4, title: 'Interviews & Think-Aloud', week: 'Week 4', questions: [
+    { q: 'A leading question in user interviews:', options: ['Opens up new topics for exploration', 'Suggests the expected or desired answer', 'Focuses on task performance', 'Asks about demographic information'], answer: 1 },
+    { q: 'In a think-aloud protocol, participants are asked to:', options: ['Silently complete tasks while observed', 'Verbalize their thoughts as they interact with a system', 'Answer questions after task completion', 'Evaluate the interface using heuristics'], answer: 1 },
+    { q: 'Affinity diagramming is used to:', options: ['Create visual wireframes', 'Organize qualitative data into clusters of related themes', 'Map user journeys chronologically', 'Document accessibility issues'], answer: 1 },
+    { q: 'Observer bias in user research occurs when:', options: ['The sample size is too small', 'The researcher\'s presence or assumptions influence what they observe or record', 'Participants cannot complete tasks', 'The recording equipment fails'], answer: 1 },
+    { q: 'Semi-structured interviews differ from structured interviews in that:', options: ['They are always conducted in person', 'They allow for follow-up questions and flexible exploration', 'They only collect quantitative data', 'They do not require any preparation'], answer: 1 }
+  ]},
+  { id: 'q5', num: 5, title: 'Observation Methods', week: 'Week 5', questions: [
+    { q: 'Contextual inquiry involves:', options: ['Observing users in their natural environment while conducting the study', 'Bringing users to a lab for controlled testing', 'Surveying users about their technology preferences', 'Analyzing system log data'], answer: 0 },
+    { q: 'A diary study is most useful for understanding:', options: ['Usability issues in a single session', 'Technology use patterns over time in natural contexts', 'Expert opinions on interface design', 'Statistical differences between user groups'], answer: 1 },
+    { q: 'The main limitation of lab-based observation compared to field observation is:', options: ['Lab studies take longer to conduct', 'Lab settings may not reflect real-world context and behavior', 'Lab studies cannot be recorded', 'Lab studies require more participants'], answer: 1 },
+    { q: 'When conducting a 30-minute public observation of ATM use, a researcher should:', options: ['Interact with users to ask questions', 'Use structured field notes to document behaviors objectively', 'Video record all users without consent', 'Focus only on error events'], answer: 1 },
+    { q: 'Which method best captures technology use across many different contexts over two weeks?', options: ['Think-aloud protocol', 'Controlled lab experiment', 'Diary study', 'Heuristic evaluation'], answer: 2 }
+  ]},
+  { id: 'q6', num: 6, title: 'Surveys & Quantitative Data', week: 'Week 6', questions: [
+    { q: 'A double-barreled survey question:', options: ['Has two possible answers', 'Asks about two different things in one question, making it ambiguous', 'Requires a numeric response', 'Is asked twice to check reliability'], answer: 1 },
+    { q: 'The System Usability Scale (SUS) produces:', options: ['A qualitative thematic analysis', 'A 0–100 usability score', 'A task completion percentage', 'An accessibility compliance rating'], answer: 1 },
+    { q: 'Likert scale questions measure:', options: ['Task completion time', 'Degree of agreement or disagreement with a statement', 'Number of errors made', 'User demographics'], answer: 1 },
+    { q: 'To minimize response bias in surveys, researchers should:', options: ['Use only yes/no questions', 'Avoid leading language and provide balanced response options', 'Make all questions required', 'Keep surveys very long for thoroughness'], answer: 1 },
+    { q: 'Combining quantitative and qualitative data is valuable because:', options: ['It eliminates the need for statistics', 'Numbers reveal "what" while qualitative data reveals "why"', 'It reduces the number of participants needed', 'Qualitative data validates quantitative findings only'], answer: 1 }
+  ]},
+  { id: 'q7', num: 7, title: 'Ideation & Design Justice', week: 'Week 7', questions: [
+    { q: '"How Might We" (HMW) questions are useful because:', options: ['They provide specific design solutions', 'They reframe problems as open-ended design opportunities', 'They document technical requirements', 'They evaluate existing prototypes'], answer: 1 },
+    { q: 'Design Justice, as described by Costanza-Chock, argues that:', options: ['Design should prioritize efficiency above all else', 'Design processes often center and benefit those already privileged', 'Good design is always universal', 'Participatory design is inefficient'], answer: 1 },
+    { q: 'Bodystorming is an ideation technique that:', options: ['Uses body language analysis to evaluate designs', 'Physically enacts scenarios to generate design ideas', 'Analyzes user body movements with motion capture', 'Involves body-based biometric measurements'], answer: 1 },
+    { q: 'A criteria matrix in ideation is used to:', options: ['Document user interview findings', 'Evaluate and compare design ideas against defined criteria', 'Create wireframes of interface designs', 'Measure usability of a prototype'], answer: 1 },
+    { q: 'Storyboarding in HCI design is primarily used to:', options: ['Create hi-fi mockups', 'Visualize user journeys and design concepts narratively', 'Document accessibility issues', 'Analyze quantitative user data'], answer: 1 }
+  ]},
+  { id: 'q8', num: 8, title: 'Prototyping Fidelity', week: 'Week 8', questions: [
+    { q: 'Paper prototyping is most appropriate for:', options: ['Final usability testing with novice users', 'Early exploration of interaction flows and concepts', 'Measuring precise task completion times', 'Accessibility compliance auditing'], answer: 1 },
+    { q: 'The primary advantage of low-fidelity prototypes is:', options: ['They look identical to the final product', 'They are fast and cheap to create and revise', 'They work on all devices automatically', 'They include full back-end functionality'], answer: 1 },
+    { q: 'A wizard-of-oz prototype involves:', options: ['A fully coded application', 'A human simulating system responses in real-time during testing', 'Automatic testing software', 'A Figma prototype with animations'], answer: 1 },
+    { q: 'High-fidelity prototypes are most appropriate when:', options: ['Exploring initial concept directions', 'Testing final interaction details and visual design with users', 'Conducting stakeholder brainstorming sessions', 'Creating the system\'s database schema'], answer: 1 },
+    { q: 'During a paper prototype walkthrough, the researcher\'s primary role is:', options: ['To operate the prototype as a "computer" responding to user actions', 'To complete the tasks on behalf of the user', 'To explain how the final product will work', 'To record screen activity with software'], answer: 0 }
+  ]},
+  { id: 'q9', num: 9, title: 'Hi-Fi Prototyping & Accessibility', week: 'Week 9', questions: [
+    { q: 'Fitts\' Law predicts that pointing time increases when a target is:', options: ['Larger and closer', 'Smaller and further away', 'Brighter in color', 'Centered on screen'], answer: 1 },
+    { q: 'WCAG 2.1 is:', options: ['A wireframing tool for accessibility', 'A set of guidelines for making web content accessible', 'A usability testing protocol', 'A JavaScript accessibility library'], answer: 1 },
+    { q: 'Hick\'s Law relates to:', options: ['The time it takes to point at a target', 'Decision time increasing with the number of choices', 'Visual perception of grouped elements', 'Memory capacity of working memory'], answer: 1 },
+    { q: 'A design rationale document serves to:', options: ['Replace the prototype with written descriptions', 'Explain and justify design decisions by connecting them to research findings', 'List all features included in the prototype', 'Provide legal documentation for the design'], answer: 1 },
+    { q: 'The Gestalt principle of proximity states that:', options: ['Similar elements appear to belong together', 'Elements close to each other are perceived as a group', 'The eye follows lines and patterns', 'Symmetrical designs appear more stable'], answer: 1 }
+  ]},
+  { id: 'q10', num: 10, title: 'Usability Testing', week: 'Week 10', questions: [
+    { q: 'A usability test task should be:', options: ['A direct instruction like "click the Settings button"', 'A realistic, goal-oriented scenario like "find today\'s weather forecast"', 'A list of all features to test', 'A general question about the interface'], answer: 1 },
+    { q: 'The think-aloud method in usability testing helps researchers understand:', options: ['Task completion rates', 'Why users make decisions and where they experience confusion', 'System response times', 'Demographic characteristics of users'], answer: 1 },
+    { q: 'Observer effect in usability testing refers to:', options: ['Errors caused by screen recording software', 'Participants behaving differently because they are being observed', 'The moderator making mistakes during the session', 'Technical issues with the prototype'], answer: 1 },
+    { q: 'A within-subjects design in usability testing means:', options: ['All participants use only one version of the interface', 'The same participants test all versions of the interface', 'Participants are randomly assigned to groups', 'Testing is conducted within the organization only'], answer: 1 },
+    { q: 'Which metric directly measures whether users can accomplish their goals?', options: ['Time on task', 'Task completion rate', 'SUS score', 'Error rate'], answer: 1 }
+  ]},
+  { id: 'q11', num: 11, title: 'Heuristic Evaluation', week: 'Week 11', questions: [
+    { q: 'Nielsen\'s heuristic "visibility of system status" means:', options: ['The interface should have a visible status bar', 'Users should always know what is happening in the system', 'All system data should be publicly visible', 'The interface loads quickly'], answer: 1 },
+    { q: '"Error prevention" as a usability heuristic means designing to:', options: ['Display helpful error messages', 'Prevent errors from occurring in the first place', 'Recover from system crashes quickly', 'Log all user errors for analysis'], answer: 1 },
+    { q: 'Compared to usability testing, heuristic evaluation is:', options: ['Always more accurate', 'Faster and cheaper but may miss real user issues', 'Better for finding aesthetic problems', 'Only suitable for expert users'], answer: 1 },
+    { q: 'When multiple evaluators conduct heuristic evaluation, aggregating findings helps to:', options: ['Ensure everyone agrees on all issues', 'Identify issues found by multiple evaluators, increasing reliability', 'Reduce the total number of issues found', 'Assign one evaluator as the authority'], answer: 1 },
+    { q: 'A severity rating in heuristic evaluation typically considers:', options: ['The evaluator\'s personal preference', 'Frequency, impact, and difficulty to fix', 'The cost of fixing the issue', 'The age of the design pattern'], answer: 1 }
+  ]},
+  { id: 'q12', num: 12, title: 'Data Analysis & Communication', week: 'Week 12', questions: [
+    { q: 'Thematic analysis involves:', options: ['Counting the frequency of words in transcripts', 'Identifying patterns of meaning across qualitative data', 'Running statistical tests on survey scores', 'Creating affinity diagrams from quantitative data'], answer: 1 },
+    { q: 'A codebook in qualitative analysis is used to:', options: ['Encrypt participant data for privacy', 'Define and standardize the codes applied to qualitative data', 'List the software tools used for analysis', 'Record demographic information'], answer: 1 },
+    { q: 'When visualizing task completion rates across user groups, the best chart type is usually:', options: ['Scatter plot', 'Grouped bar chart', 'Pie chart', 'Area chart'], answer: 1 },
+    { q: 'An evaluation findings report should prioritize recommendations by:', options: ['Alphabetical order', 'Severity and impact, grounded in evidence', 'Implementation cost', 'The evaluator\'s personal preference'], answer: 1 },
+    { q: 'Inter-rater reliability in qualitative coding refers to:', options: ['The speed at which coders work', 'The degree of agreement between multiple coders', 'The number of codes in the codebook', 'The accuracy of transcription software'], answer: 1 }
+  ]},
+  { id: 'q13', num: 13, title: 'HCI Writing & Scholarly Conventions', week: 'Week 13', questions: [
+    { q: 'A CHI-style research paper\'s Related Work section should:', options: ['List all papers ever written on the topic', 'Synthesize relevant prior work to position the current study', 'Summarize each paper in a separate paragraph', 'Only include papers from the last year'], answer: 1 },
+    { q: 'IEEE citation style is primarily used in:', options: ['Humanities and social sciences', 'Engineering and computer science fields including HCI', 'Medical and health research', 'Legal scholarship'], answer: 1 },
+    { q: 'Self-plagiarism in academic work means:', options: ['Copying your own previous work without disclosure', 'Writing in a style similar to your favorite author', 'Using first-person voice in academic writing', 'Paraphrasing your own ideas'], answer: 0 },
+    { q: 'The Discussion section of an HCI paper primarily:', options: ['Re-states the methodology', 'Interprets findings, discusses implications, and addresses limitations', 'Presents raw data tables', 'Lists future implementation plans only'], answer: 1 },
+    { q: 'Academic register in HCI writing means:', options: ['Using complex vocabulary to appear expert', 'Clear, precise, objective language appropriate for scholarly audiences', 'Avoiding all technical terminology', 'Writing in passive voice exclusively'], answer: 1 }
+  ]}
+];
+
+const container = document.getElementById('quizList');
+const grades = GradeStore.get();
+
+quizData.forEach(quiz => {
+  const saved = grades['quiz_' + quiz.id];
+  const row = document.createElement('div');
+  row.className = 'quiz-row' + (saved ? ' completed' : '');
+  // row.onclick = () => openQuiz(quiz);
+  row.onclick = () => {
+    window.location.href = `quiz.html?id=${quiz.id}`;
+  };
+  row.innerHTML = `
+    <div class="quiz-num">Q${quiz.num}</div>
+    <div class="quiz-row-info">
+      <h4>${quiz.title}</h4>
+      <span>${quiz.week} · ${quiz.questions.length} questions · 10 pts</span>
+    </div>
+    <div>
+      <span class="badge-status ${saved ? 'badge-graded' : 'badge-open'}">${saved ? 'Completed' : 'Open'}</span>
+    </div>
+    <div class="quiz-score">${saved ? `${saved.score}/10` : '—'}</div>
+  `;
+  container.appendChild(row);
+});
+
+let currentQuiz = null;
+let userAnswers = {};
+
+function openQuiz(quiz) {
+  currentQuiz = quiz;
+  userAnswers = {};
+  const modal = document.getElementById('quizModal');
+  const content = document.getElementById('quizContent');
+  const saved = GradeStore.get()['quiz_' + quiz.id];
+
+  content.innerHTML = `
+    <div class="modal-header">
+      <div>
+        <h2>Quiz ${quiz.num}: ${quiz.title}</h2>
+        <p class="text-muted text-sm">${quiz.week} · ${quiz.questions.length} questions · 10 points</p>
+      </div>
+      <button class="modal-close" onclick="closeQuiz()">✕</button>
+    </div>
+    ${saved ? `<div style="background:var(--primary-light);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:1rem;font-size:0.85rem;color:var(--primary);font-weight:600;">You scored ${saved.score}/10 on this quiz. You can retake it below.</div>` : ''}
+    <div id="questionsArea">
+      ${quiz.questions.map((q, i) => `
+        <div class="quiz-question" id="qq-${i}">
+          <h4>${i+1}. ${q.q}</h4>
+          ${q.options.map((opt, j) => `
+            <div class="quiz-option" data-qi="${i}" data-oi="${j}" onclick="selectOption(this, ${i}, ${j})">
+              <input type="radio" name="q${i}" value="${j}" style="pointer-events:none;"> ${opt}
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn" onclick="submitQuizModal()" style="width:100%;margin-top:1rem;">Submit Quiz</button>
+    <div class="quiz-result" id="quizResult"></div>
+  `;
+  modal.classList.add('open');
+}
+
+function selectOption(el, qi, oi) {
+  const question = document.getElementById('qq-' + qi);
+  question.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  userAnswers[qi] = oi;
+}
+
+function submitQuizModal() {
+  const quiz = currentQuiz;
+  let correct = 0;
+  quiz.questions.forEach((q, i) => {
+    const selected = userAnswers[i];
+    const qEl = document.getElementById('qq-' + i);
+    qEl.querySelectorAll('.quiz-option').forEach((opt, j) => {
+      if (j === q.answer) opt.classList.add('correct');
+      else if (j === selected && selected !== q.answer) opt.classList.add('wrong');
+    });
+    if (selected === q.answer) correct++;
+  });
+  const score = correct;
+  GradeStore.save('quiz_' + quiz.id, score, 10);
+
+  const result = document.getElementById('quizResult');
+  result.classList.add('show');
+  result.innerHTML = `
+    <div class="score-big">${score}/10</div>
+    <p style="font-weight:600;margin-top:0.35rem;">${score >= 8 ? '🎉 Excellent!' : score >= 6 ? '👍 Good work!' : '📖 Review the material and try again.'}</p>
+    <p class="text-muted text-sm">You answered ${correct} out of ${quiz.questions.length} correctly. ${correct < quiz.questions.length ? 'Correct answers are highlighted in green.' : 'Perfect score!'}</p>
+    <button class="btn btn-sm btn-outline" onclick="closeQuiz()" style="margin-top:0.75rem;">Close</button>
+  `;
+  document.querySelector('#quizContent .btn:not(.btn-sm):not(.btn-outline)').style.display = 'none';
+}
+
+function closeQuiz() {
+  document.getElementById('quizModal').classList.remove('open');
+  location.reload();
+}
+
+document.getElementById('quizModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeQuiz();
+});
+</script>
+</body>
+</html>

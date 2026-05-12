@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modules — HCI Research Fundamentals</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .unit-section { margin-bottom: 2rem; }
+  .unit-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    margin-bottom: 0.75rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .unit-header .unit-num {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1.1rem; flex-shrink: 0;
+  }
+  .unit-header .unit-info h2 { font-size: 1rem; margin: 0; }
+  .unit-header .unit-info p { font-size: 0.78rem; opacity: 0.8; margin: 0.15rem 0 0; }
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 0.6rem;
+    overflow: hidden;
+  }
+  .module-header {
+    padding: 1rem 1.25rem;
+    display: flex; align-items: center; gap: 1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .module-header:hover { background: var(--surface-alt); }
+  .module-icon {
+    width: 36px; height: 36px;
+    background: var(--primary-light);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+  .module-info { flex: 1; }
+  .module-info h3 { font-size: 0.9rem; margin: 0 0 0.2rem; }
+  .module-info .module-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; gap: 1rem; flex-wrap: wrap; }
+  .module-chevron { color: var(--text-muted); transition: transform 0.2s; }
+  .module-card.open .module-chevron { transform: rotate(180deg); }
+  .module-body { display: none; border-top: 1px solid var(--border); padding: 1.1rem 1.25rem; }
+  .module-card.open .module-body { display: block; }
+  .module-section { margin-bottom: 1rem; }
+  .module-section h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; }
+  .module-section ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+  .module-section li { font-size: 0.83rem; display: flex; align-items: flex-start; gap: 0.6rem; }
+  .module-section li::before { content: '›'; color: var(--primary); font-weight: 700; flex-shrink: 0; }
+  .module-links { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">HCI</div><div class="logo-text">Research<br>Fundamentals</div></div>
+    <ul class="nav-list">
+      <li><a href="index.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a></li>
+      <li><a href="syllabus.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Syllabus</a></li>
+      <li><a href="schedule.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a></li>
+      <li><a href="modules.html" class="nav-link active"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Modules</a></li>
+      <li><a href="assignments.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Assignments</a></li>
+      <li><a href="quizzes.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quizzes</a></li>
+      <li><a href="discussions.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Discussions</a></li>
+      <li><a href="activities.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Activities</a></li>
+      <li><a href="grades.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grades</a></li>
+      <li><a href="rubrics.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Rubrics</a></li>
+    </ul>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="page-title">Modules</span>
+      <div class="topbar-actions"><span class="semester-badge">Spring 2026</span></div>
+    </header>
+
+    <div class="content-body">
+      <h1 style="margin-bottom:0.25rem;">Modules</h1>
+      <p class="text-muted text-sm" style="margin-bottom:1.5rem;">5 units · 15 modules · Click any module to expand</p>
+      <div id="modulesContainer"></div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+const units = [
+  {
+    num: 1, title: "Foundations of HCI", weeks: "Weeks 1–3", icon: "🏛️",
+    modules: [
+      {
+        num: 1, icon: "📖", title: "What is HCI? History, Models & Paradigms", week: "Week 1",
+        objectives: [
+          "Trace the historical development of HCI from batch computing to embodied interaction",
+          "Distinguish between HCI's three research paradigms (engineering, cognitive science, phenomenology)",
+          "Critically evaluate how power, access, and representation have shaped the field"
+        ],
+        activities: [
+          "Annotated reading: Excerpt from Grudin's A Moving Target",
+          "Discussion board: Where do you see HCI in your everyday life?",
+          "Small group: Map a familiar technology to one of the three paradigms"
+        ],
+        quiz: "Quiz 1: Paradigm identification, timeline ordering, key theorists (Fitts, Norman, Winograd)",
+        quizId: 'q1',
+        slides: './assets/module_1.pptx'
+      },
+      {
+        num: 2, icon: "🔍", title: "Research in HCI: Questions, Methods & Epistemology", week: "Week 2",
+        objectives: [
+          "Formulate research questions appropriate for HCI inquiry",
+          "Differentiate qualitative, quantitative, and mixed-methods approaches",
+          "Identify what makes HCI research valid, rigorous, and ethical"
+        ],
+        activities: [
+          "Case study analysis: Read 2 published CHI papers — compare methods, questions, findings",
+          "Workshop: Reframe the Question — reshape a vague design problem into a researchable HCI question",
+          "Reflection journal entry: Positionality prompt"
+        ],
+        quiz: "Quiz 2: Match research questions to methods; identify methodological gaps in a scenario",
+        quizId: 'q2',
+      },
+      {
+        num: 3, icon: "⚖️", title: "Ethics, Equity & Positionality in HCI", week: "Week 3",
+        objectives: [
+          "Apply ethical frameworks (informed consent, privacy, harm minimization) to HCI research scenarios",
+          "Analyze HCI systems through the lens of equity, access, and cultural context",
+          "Articulate their own positionality as a researcher and designer"
+        ],
+        activities: [
+          "Case study: Examine a real system that caused harm (e.g., facial recognition bias, dark patterns)",
+          "Fishbowl discussion: Who is HCI designed for? Whose voices are missing?",
+          "IRB orientation activity — read Belmont Report summary"
+        ],
+        quiz: "Quiz 3: Ethics & equity scenarios",
+        quizId: 'q3',
+        milestone: "Milestone 1: Research Proposal due Sunday"
+      }
+    ]
+  },
+  {
+    num: 2, title: "User Research Methods", weeks: "Weeks 4–6", icon: "👥",
+    modules: [
+      {
+        num: 4, icon: "🎙️", title: "Interviews & Think-Aloud Protocols", week: "Week 4",
+        objectives: [
+          "Design and conduct semi-structured user interviews",
+          "Facilitate and document think-aloud sessions",
+          "Apply affinity diagramming to synthesize qualitative data"
+        ],
+        activities: [
+          "Role-play pairs: Practice interviewing a classmate about a technology they use daily",
+          "Think-aloud lab: Complete a task on an assigned app while partner observes",
+          "Synthesis workshop: Build an affinity diagram from collected notes"
+        ],
+        quiz: "Quiz 4: Good vs. poor interview questions; observer bias in a scenario transcript",
+        quizId: 'q4',
+      },
+      {
+        num: 5, icon: "🔭", title: "Observation, Contextual Inquiry & Diary Studies", week: "Week 5",
+        objectives: [
+          "Conduct structured field observations using established protocols",
+          "Design a contextual inquiry session appropriate to a research question",
+          "Evaluate the trade-offs between naturalistic and lab-based observation"
+        ],
+        activities: [
+          "Field observation: 30-minute observation of a public technology interaction",
+          "Contextual inquiry simulation in class: pairs observe each other completing realistic tasks",
+          "Peer critique: Review a classmate's observation notes for completeness and bias"
+        ],
+        quiz: "Quiz 5: Scenario-based — choose the right observation method given constraints",
+        quizId: 'q5',
+      },
+      {
+        num: 6, icon: "📊", title: "Surveys, Questionnaires & Quantitative User Data", week: "Week 6",
+        objectives: [
+          "Construct valid, unbiased survey instruments for HCI research",
+          "Apply descriptive statistics to interpret user data",
+          "Combine quantitative and qualitative data into a coherent user research report"
+        ],
+        activities: [
+          "Survey design workshop: Draft a 10-question survey, peer review for bias/clarity",
+          "Data lab: Analyze task completion times, SUS scores, Likert results",
+          "Mini-presentation: 5-minute data story from quantitative findings"
+        ],
+        quiz: "Quiz 6: Survey design & descriptive statistics",
+        quizId: 'q6',
+        milestone: "Milestone 2: User Research Report due Sunday"
+      }
+    ]
+  },
+  {
+    num: 3, title: "Design & Prototyping", weeks: "Weeks 7–9", icon: "✏️",
+    modules: [
+      {
+        num: 7, icon: "💡", title: "Ideation, Design Thinking & Design Justice", week: "Week 7",
+        objectives: [
+          "Apply structured ideation techniques (How Might We, SCAMPER, bodystorming)",
+          "Evaluate design concepts through a design justice lens",
+          "Connect design decisions back to research findings"
+        ],
+        activities: [
+          "Ideation sprint: Generate 20 ideas in 20 minutes, down-select using criteria matrix",
+          "Design justice reading + discussion: Costanza-Chock's Design Justice",
+          "Storyboarding: Sketch a user journey for your project concept (3–5 panels)"
+        ],
+        quiz: "Quiz 7: Ideation techniques; analyze a storyboard for assumptions",
+        quizId: 'q7',
+      },
+      {
+        num: 8, icon: "📝", title: "Lo-Fi Prototyping & Paper Prototyping", week: "Week 8",
+        objectives: [
+          "Create paper prototypes that communicate interaction flows",
+          "Conduct a prototype walkthrough with a user",
+          "Iterate based on rapid feedback"
+        ],
+        activities: [
+          "Paper prototype lab: Build and test a core flow of your project in class",
+          "Speed critique: 5-minute peer feedback rounds (3 stations)",
+          "Iteration documentation: Before/after sketches showing what changed and why"
+        ],
+        quiz: "Quiz 8: Match fidelity levels to appropriate research questions and constraints",
+        quizId: 'q8',
+      },
+      {
+        num: 9, icon: "🖥️", title: "Hi-Fi Prototyping, Accessibility & Interaction Design", week: "Week 9",
+        objectives: [
+          "Apply interaction design principles (Fitts' Law, Hick's Law, gestalt) to hi-fi designs",
+          "Evaluate prototypes against WCAG 2.1 accessibility standards",
+          "Produce a Figma hi-fi prototype ready for usability testing"
+        ],
+        activities: [
+          "Figma lab: Build or refine hi-fi prototype during class with instructor support",
+          "Accessibility audit: Run prototype through a11y checklist, document issues and fixes",
+          "Design rationale memo: One-page written rationale connecting design decisions to research"
+        ],
+        quiz: "Quiz 9: Interaction design principles",
+        quizId: 'q9',
+        milestone: "Milestone 3: Prototype + Design Rationale due Sunday"
+      }
+    ]
+  },
+  {
+    num: 4, title: "Evaluation & Testing", weeks: "Weeks 10–12", icon: "🧪",
+    modules: [
+      {
+        num: 10, icon: "👤", title: "Usability Testing", week: "Week 10",
+        objectives: [
+          "Design a usability test protocol with tasks, scenarios, and measures",
+          "Moderate a usability session while managing observer effects",
+          "Analyze usability data (errors, task time, satisfaction) systematically"
+        ],
+        activities: [
+          "Protocol workshop: Draft a full usability test plan for your project",
+          "In-class usability test: Students test each other's prototypes",
+          "Debrief discussion: What surprised you? What would you change?"
+        ],
+        quiz: "Quiz 10: Threats to validity; interpret task completion data",
+        quizId: 'q10',
+      },
+      {
+        num: 11, icon: "🔎", title: "Heuristic Evaluation & Expert Review", week: "Week 11",
+        objectives: [
+          "Apply Nielsen's 10 usability heuristics to evaluate an interface",
+          "Compare expert review to empirical testing — when to use each",
+          "Consolidate findings from multiple evaluators into actionable recommendations"
+        ],
+        activities: [
+          "Heuristic evaluation exercise: Evaluate a provided interface using Nielsen's heuristics",
+          "Aggregation lab: Combine findings from 3 evaluators, resolve conflicts, prioritize issues",
+          "Written critique: 1-page expert review of a real-world app"
+        ],
+        quiz: "Quiz 11: Identify which heuristic is violated in interface screenshots",
+        quizId: 'q11',
+      },
+      {
+        num: 12, icon: "📈", title: "Analyzing & Communicating Evaluation Data", week: "Week 12",
+        objectives: [
+          "Code qualitative data from usability sessions (affinity mapping, thematic analysis)",
+          "Visualize quantitative findings clearly and accurately",
+          "Write a structured evaluation findings report"
+        ],
+        activities: [
+          "Coding lab: Transcripts coded collaboratively using a shared codebook",
+          "Data visualization workshop: Create 2–3 charts communicating key findings",
+          "Peer review: Exchange evaluation reports for structured written feedback"
+        ],
+        quiz: "Quiz 12: Data analysis and visualization",
+        quizId: 'q12',
+        milestone: "Milestone 4: Evaluation Findings Report due Sunday"
+      }
+    ]
+  },
+  {
+    num: 5, title: "Research Communication", weeks: "Weeks 13–15", icon: "📣",
+    modules: [
+      {
+        num: 13, icon: "✍️", title: "Writing for HCI: Structure, Style & Scholarly Conventions", week: "Week 13",
+        objectives: [
+          "Structure an HCI research paper following CHI/ACM conventions",
+          "Integrate and cite related work effectively",
+          "Write for clarity, precision, and appropriate academic register"
+        ],
+        activities: [
+          "Paper anatomy workshop: Dissect a CHI paper section by section",
+          "Writing lab: Draft related work and methods sections in class",
+          "Peer writing workshop: Exchange drafts, give structured feedback"
+        ],
+        quiz: "Quiz 13: Common academic writing problems in anonymized student samples",
+        quizId: 'q13',
+      },
+      {
+        num: 14, icon: "🎤", title: "Presentations, Demos & Research Communication", week: "Week 14",
+        objectives: [
+          "Design a research presentation that communicates findings to a mixed audience",
+          "Demonstrate an interactive prototype effectively",
+          "Respond to critical questions with clarity and scholarly grounding"
+        ],
+        activities: [
+          "Practice presentation: 5-minute elevator pitch — get peer feedback",
+          "Demo day prep: Troubleshoot prototype, prepare talking points",
+          "Guest critique (optional): Practitioners or adjacent faculty give feedback"
+        ],
+        quiz: null,
+        quizId: null
+      },
+      {
+        num: 15, icon: "🏁", title: "Final Showcase & Reflection", week: "Week 15",
+        objectives: [],
+        activities: [
+          "Final presentations (15 min each + Q&A)",
+          "Peer and self-reflection"
+        ],
+        quiz: null,
+        milestone: "Final Research Paper + Presentation due"
+      }
+    ]
+  }
+];
+
+const container = document.getElementById('modulesContainer');
+
+units.forEach(unit => {
+  const section = document.createElement('div');
+  section.className = 'unit-section';
+  section.innerHTML = `
+    <div class="unit-header">
+      <div class="unit-num">${unit.num}</div>
+      <div class="unit-info">
+        <h2>${unit.title}</h2>
+        <p>${unit.weeks} · ${unit.modules.length} modules</p>
+      </div>
+      <span style="font-size:1.5rem;">${unit.icon}</span>
+    </div>
+  `;
+
+  unit.modules.forEach(mod => {
+    const card = document.createElement('div');
+    card.className = 'module-card';
+    card.innerHTML = `
+      <div class="module-header" onclick="this.closest('.module-card').classList.toggle('open')">
+        <div class="module-icon">${mod.icon}</div>
+        <div class="module-info">
+          <h3>Module ${mod.num} — ${mod.title}</h3>
+          <div class="module-meta">
+            ${mod.slides ? `<span>🪧 Slides Available</span>` : ''}
+            <span>📅 ${mod.week}</span>
+            <span>📚 ${mod.objectives.length} objectives</span>
+            <span>⭐ ${mod.activities.length} activities</span>
+            ${mod.quiz ? '<span>❓ 1 quiz</span>' : ''}
+            ${mod.milestone ? `<span style="color:var(--accent);font-weight:600;">⚑ Milestone due</span>` : ''}
+          </div>
+        </div>
+        <svg class="module-chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="module-body">
+        ${mod.objectives.length ? `
+        <div class="module-section">
+          <h4>Learning Objectives</h4>
+          <ul>${mod.objectives.map(o => `<li>${o}</li>`).join('')}</ul>
+        </div>` : ''}
+        <div class="module-section">
+          <h4>Activities</h4>
+          <ul>${mod.activities.map(a => `<li>${a}</li>`).join('')}</ul>
+        </div>
+        ${mod.quiz ? `
+        <div class="module-section">
+          <h4>Quiz</h4>
+          <ul><li>${mod.quiz}</li></ul>
+        </div>` : ''}
+        ${mod.milestone ? `<div style="background:var(--accent-light);border:1px solid #fcd34d;border-radius:8px;padding:0.5rem 0.85rem;font-size:0.8rem;font-weight:600;color:#92400e;margin-top:0.75rem;">⚑ ${mod.milestone}</div>` : ''}
+        <div class="module-links">
+          ${mod.slides ? `<a href="${mod.slides}" class="btn btn-sm btn-outline">Slides</a>` : ''}
+          <a href="quiz.html?id=${mod.quizId}" class="btn btn-sm btn-outline">Take Quiz</a>
+          <a href="activities.html" class="btn btn-sm btn-outline">View Activity</a>
+          <a href="discussions.html" class="btn btn-sm btn-outline">Discussion</a>
+        </div>
+      </div>
+    `;
+    section.appendChild(card);
+  });
+
+  container.appendChild(section);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syllabus — HCI Research Fundamentals</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .syllabus-section { margin-bottom: 2rem; }
+  .syllabus-section h2 { font-size: 1.05rem; font-weight: 700; color: var(--primary); border-bottom: 2px solid var(--primary-light); padding-bottom: 0.4rem; margin-bottom: 1rem; }
+  .syllabus-section h3 { font-size: 0.95rem; font-weight: 600; color: var(--primary); border-bottom: 2px solid var(--primary-light); padding-bottom: 0.4rem; margin-bottom: 1rem; }
+  /* .syllabus-section h4 { font-size: 0.70rem; font-weight: 500; color: var(--primary); border-bottom: 2px solid var(--primary-light); padding-bottom: 0.4rem; margin-bottom: 1rem; } */
+  .syllabus-section p, .syllabus-section li { font-size: 0.875rem; line-height: 1.7; color: var(--text); }
+  .syllabus-section ul { padding-left: 1.4rem; }
+  .syllabus-section li { margin-bottom: 0.35rem; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 580px) { .info-grid { grid-template-columns: 1fr; } }
+  .info-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.9rem 1rem; }
+  .info-item .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem; }
+  .info-item .value { font-size: 0.9rem; font-weight: 600; }
+  .grade-scale { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem; }
+  .grade-chip { padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.78rem; font-weight: 600; }
+  .policy-block { background: var(--surface-alt); border-left: 3px solid var(--primary); border-radius: var(--radius-sm); padding: 0.9rem 1.1rem; margin-bottom: 0.75rem; margin: 32px 0px;}
+  .policy-block h4 { font-size: 0.85rem; margin-bottom: 0.35rem; }
+  .policy-block p { font-size: 0.82rem; color: var(--text-muted); }
+  /* .grading-table td:first-child { font-weight: 600; } */
+  .grading-table .weight { color: var(--primary); font-weight: 700; }
+  .outcomes-list { counter-reset: outcome; list-style: none; padding: 0; }
+  .outcomes-list li { counter-increment: outcome; display: flex; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .outcomes-list li::before {
+    content: counter(outcome);
+    background: var(--primary);
+    color: white;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">HCI</div>
+      <div class="logo-text">Research<br>Fundamentals</div>
+    </div>
+    <ul class="nav-list">
+      <li><a href="index.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a></li>
+      <li><a href="syllabus.html" class="nav-link active"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Syllabus</a></li>
+      <li><a href="schedule.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a></li>
+      <li><a href="modules.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Modules</a></li>
+      <li><a href="assignments.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Assignments</a></li>
+      <li><a href="quizzes.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quizzes</a></li>
+      <li><a href="discussions.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Discussions</a></li>
+      <li><a href="activities.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Activities</a></li>
+      <li><a href="grades.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grades</a></li>
+      <li><a href="rubrics.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Rubrics</a></li>
+    </ul>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="page-title">Syllabus</span>
+      <div class="topbar-actions"><span class="semester-badge">Spring 2026</span></div>
+    </header>
+
+    <div class="content-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+        <div>
+          <h1 style="margin-bottom:0.25rem;">Course Syllabus</h1>
+          <p class="text-muted text-sm">CS — HCI Research Fundamentals · Spring 2026</p>
+        </div>
+      </div>
+
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="overview">Overview</button>
+          <button class="tab-btn" data-tab="details">Details</button>
+          <button class="tab-btn" data-tab="grading">Grading</button>
+          <button class="tab-btn" data-tab="policies">Policies</button>
+          <button class="tab-btn" data-tab="materials">Materials</button>
+        </div>
+
+        <div id="overview" class="tab-panel active">
+          <div class="syllabus-section">
+            <h2>Course Information</h2>
+            <div class="info-grid">
+              <div class="info-item"><div class="label">Course</div><div class="value">CS — HCI Research Fundamentals</div></div>
+              <div class="info-item"><div class="label">Section</div><div class="value">In Person · Mondays, 2:00–5:00 PM</div></div>
+              <div class="info-item"><div class="label">Semester</div><div class="value">Spring 2026</div></div>
+              <div class="info-item"><div class="label">Level</div><div class="value">Graduate</div></div>
+            </div>
+          </div>
+
+          <div class="syllabus-section">
+            <h2>Catalog Description</h2>
+            <p>An advanced graduate-level exploration of human-computer interaction (HCI) as a research and design discipline. Students investigate user needs, design interactive systems, and contribute original research through an iterative, project-based approach. Topics include HCI research paradigms, user research methods (interviews, contextual inquiry, surveys), lo-fi and hi-fi prototyping, usability evaluation, and scholarly communication. Students develop a semester-long research project culminating in a CHI-style research paper in LaTeX and functional prototype. Emphasis is placed on equity, accessibility, cultural responsiveness, and the societal impact of interactive systems.</p>
+          </div>
+
+          <div class="syllabus-section">
+            <h2>Learning Outcomes</h2>
+            <ul class="outcomes-list">
+              <li>Critically analyze foundational HCI theories, research paradigms, and the historical development of the field, including issues of equity, access, and representation in digital systems.</li>
+              <li>Formulate focused, researchable HCI questions grounded in user needs, and select appropriate research methods to investigate them.</li>
+              <li>Design and conduct original user research using qualitative and quantitative methods, including interviews, observation, contextual inquiry, and surveys.</li>
+              <li>Create interactive prototypes at multiple levels of fidelity and connect design decisions to research findings through documented design rationale.</li>
+              <li>Plan and execute systematic usability evaluations: including usability testing and heuristic evaluation, and analyze and communicate findings effectively.</li>
+              <li>Produce a publishable-quality HCI research paper following CHI/ACM conventions, integrating original research, design, and evaluation into a coherent scholarly argument.</li>
+              <li>Articulate their positionality as researchers and designers and apply culturally responsive and ethically grounded practices throughout the design process.</li>
+            </ul>
+          </div>
+
+          <div class="syllabus-section">
+            <h2>Course Format</h2>
+            <p>This course uses a project-based format with weekly in-person meetings focused on active learning and creative problem-solving. During each 3-hour class, students participate in lectures, collaborative workshops, peer critiques, and studio-based design activities. Course materials, assignments, and learning modules are available through this course website. Students are expected to check regularly for announcements, updates, and important information.</p>
+          </div>
+        </div>
+
+        <div id="details" class="tab-panel">
+          <div class="syllabus-section">
+            <h2>Course Assignments</h2>
+            <p>This course is built around a semester-long research project: Design Through Research,  in which students identify a real HCI problem, conduct original user research, design and prototype an intervention, evaluate it with users, and report their findings as a CHI-style research paper. The project unfolds through four milestone assignments and a final paper and presentation. In addition to the milestones, weekly in-class activities and reading quizzes support skill-building and accountability throughout the semester.</p>
+          </div>
+          <div class="syllabus-section">
+            <h3>Semester Project: Design Through Research</h3>
+            <p>Students select a real-world HCI problem meaningful to a community or population they care about. Over 15 weeks, they conduct original user research, design and prototype an interactive solution, evaluate it through usability testing, and synthesize their work into a scholarly research paper with a functional prototype. Each milestone builds directly on the last, and all prior milestone work is integrated into the final paper.</p>
+            <br>
+            <h4>Milestone 1: Research Proposal (Week 3)</h4>
+            <p>Purpose: Establish a clear problem space, research questions, preliminary literature, and planned methods.</p>
+            <ul>
+              <li>Problem Statement & Motivation – Articulate who is affected, why the problem matters, and what gap in the literature or practice exists.</li>
+              <li>Research Questions – Develop 2–3 focused, researchable HCI questions that will guide the project.</li>
+              <li>Annotated Bibliography – Locate and annotate 8–10 scholarly sources (mix of HCI and domain literature).</li>
+              <li>Methods Overview – Propose the user research methods to be used in Milestone 2 with initial justification.</li>
+              <li>Positionality Statement – Reflect on how your background, identity, and assumptions may shape your research.</li>
+            </ul>
+            <br>
+            <h4>Milestone 2: User Research Report (Week 6)</h4>
+            <p>Purpose: Ground design decisions in original user research using at least two methods and a minimum of 3–5 participants.</p>
+            <ul>
+              <li>Methods Section – Document who participated, how data was collected, and why those methods were chosen.</li>
+              <li>Data Collection Artifacts – Include interview guide, observation protocol, or survey instrument used.</li>
+              <li>Findings – Present themes with supporting evidence (quotes, observations, data) organized clearly.</li>
+              <li>Synthesis Artifact – Provide an affinity diagram or equivalent that shows how raw data was organized into insights.</li>
+              <li>Design Implications – Articulate 3–5 specific, actionable insights that will directly inform the prototype.</li>
+            </ul>
+            <br>
+            <h4>Milestone 3: Prototype + Design Rationale (Week 9)</h4>
+            <p>Purpose: Translate research findings into a hi-fi interactive prototype with documented design reasoning.</p>
+            <ul>
+              <li>
+                Hi-Fi Prototype – A Figma (or equivalent) prototype covering the core user flow with a minimum of 5 screens/states.
+              </li>
+              <li>Design Rationale – A 3–4 page document connecting major design decisions to research findings and interaction design principles.</li>
+              <li>Accessibility Documentation – An accessibility checklist (WCAG 2.1) documenting issues identified and addressed.</li>
+              <li>
+                Lo-Fi to Hi-Fi Evolution – Before/after sketches with brief explanation of key design changes and reasoning.
+              </li>
+            </ul>
+            <br>
+            <h4>Milestone 4: Evaluation Findings Report (Week 12) </h4>
+            <p>Purpose: Evaluate the prototype with real users and synthesize quantitative and qualitative findings into prioritized recommendations.</p>
+            <ul>
+              <li>Evaluation Plan – Document participants, tasks, measures, and methods used.</li>
+              <li>Quantitative Results – Report task completion rates, time on task, and standardized scale scores (e.g., SUS).</li>
+              <li>Qualitative Findings – Present themes from think-aloud observations and post-session interviews.</li>
+              <li>Heuristic Evaluation Summary – Identify and rate violations of Nielsen's 10 usability heuristics.</li>
+              <li>Prioritized Recommendations – List at least 5 redesign recommendations with severity ratings grounded in evidence.</li>
+            </ul>
+          </div>
+          <div class="syllabus-section">
+            <h2>In-Class Activities</h2>
+            <p>In-class activities are woven throughout the semester. Activities take the form of workshops, design studios, peer critiques, case study analyses, and collaborative problem-solving tasks. They are intentionally designed as low-stakes practice opportunities that directly precede and scaffold each milestone, ensuring that students rehearse and test skills before committing to graded work. Although activities are completed during class time, submissions are due by Sunday at 11:59 PM to allow flexibility if a student needs additional time.</p>
+          </div>
+
+          <div class="syllabus-section">
+            <h2>Weekly Reading Quizzes</h2>
+            <p>Reading quizzes will be given weekly as brief, low-stakes assessments completed at the end of class. These quizzes cover important concepts, terminology, and major ideas from the assigned readings. Their purpose is to encourage regular completion of course readings, strengthen understanding of core HCI principles, and help students prepare for their design project and class activities. A total of 13 quizzes will be administered during the semester, and the lowest 3 scores will be excluded from the final grade.</p>
+          </div>
+
+          <div class="syllabus-section">
+            <h2>Final Project: Research Paper + Showcase (Week 15)</h2>
+            <p>The final deliverable is a complete 10–14 page CHI-style research paper synthesizing all prior milestones, plus a 15-minute research presentation with live prototype demonstration. The paper must include: Abstract, Introduction, Related Work, Methods, Findings, Design, Evaluation, Discussion, Limitations, Conclusion, and References (minimum 15 scholarly sources).</p>
+          </div>
+        </div>
+
+        <div id="grading" class="tab-panel">
+          <div class="syllabus-section">
+            <h2>Grading Scale</h2>
+            <p style="margin-bottom:0.75rem;">No rounding of calculated grades. Grades D, D+, and C− are not assigned in graduate courses.</p>
+            <div class="grade-scale">
+              <span class="grade-chip" style="background:#dcfce7;color:#166534;">A · 100–93</span>
+              <span class="grade-chip" style="background:#dcfce7;color:#166534;">A− · 92–90</span>
+              <span class="grade-chip" style="background:#d1fae5;color:#065f46;">B+ · 89–87</span>
+              <span class="grade-chip" style="background:#fef9c3;color:#854d0e;">B · 86–83</span>
+              <span class="grade-chip" style="background:#fef9c3;color:#854d0e;">B− · 82–80</span>
+              <span class="grade-chip" style="background:#ffedd5;color:#9a3412;">C+ · 79–77</span>
+              <span class="grade-chip" style="background:#ffedd5;color:#9a3412;">C · 76–70</span>
+              <span class="grade-chip" style="background:#fee2e2;color:#991b1b;">F · &lt;70</span>
+            </div>
+          </div>
+
+          <div class="syllabus-section">
+            <h2>Grading Distribution</h2>
+            <div class="table-wrap">
+              <table class="grading-table">
+                <thead><tr><th>Category</th><th>Item</th><th>Points</th><th>Weight</th></tr></thead>
+                <tbody>
+                  <tr><td rowspan="4">Milestone Assignments (15%)</td><td>Milestone 1: Research Proposal</td><td>10</td><td>10%</td></tr>
+                  <tr><td>Milestone 2: User Research Report</td><td>100</td><td>30%</td></tr>
+                  <tr><td>Milestone 3: Prototype + Design Rationale</td><td>100</td><td>30%</td></tr>
+                  <tr><td>Milestone 4: Evaluation Findings Report</td><td>100</td><td>30%</td></tr>
+                  <tr><td rowspan="1">Quizzes (20%)</td><td>Weekly Reading Quizzes — 13 total, drop lowest 3</td><td>10 each</td><td>10% each</td></tr>
+                  <tr><td rowspan="1">In-Class Activities (25%)</td><td>1 per week — drop lowest 1</td><td>10 each</td><td>~8% each</td></tr>
+                  <tr><td rowspan="2">Final Project (40%)</td><td>Presentation</td><td>100</td><td>25%</td></tr>
+                  <tr><td>Final Research Paper</td><td>100</td><td>75%</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="policies" class="tab-panel">
+          <div class="policy-block">
+            <h4>Participation</h4>
+            <p>Attendance and participation are not graded as a separate category, but consistent engagement with the course is essential for success. Students are expected to attend every class session, complete all assigned work, and take part in discussions and activities. Regular participation includes contributing to conversations, staying curious, asking questions when needed, and interacting respectfully with peers and the instructor. Completing readings before class is strongly encouraged, as in-class activities and discussions are based on that preparation.</p>
+          </div>
+          <div class="policy-block">
+            <h4>Late Work</h4>
+            <p>Late or missing work is generally not accepted unless there are serious or extenuating circumstances. If you anticipate any issue that may prevent you from meeting a deadline, please let me know in advance whenever possible so we can discuss appropriate arrangements.</p>
+          </div>
+          <div class="policy-block">
+            <h4>Submission Policy</h4>
+            <p>All assignments and quizzes are due by 11:59 PM ET on their scheduled dates. Written work is typically due Sundays; discussion activities take place during Monday class sessions.</p>
+          </div>
+          <div class="policy-block">
+            <h4>Generative AI Policy</h4>
+            <p>The use of generative AI tools is permitted in this course for certain aspects of your work, and I recognize that these tools can be helpful for brainstorming, drafting, and learning support. However, they should not replace your own thinking, analysis, or writing. You are expected to use AI responsibly and avoid becoming overly dependent on it, ensuring that your final submissions reflect your own understanding and effort.</p><br>
+            <p>If you choose to use AI tools, you must clearly disclose how they were used, either within the assignment itself or in an accompanying document. </p>
+          </div>
+          <div class="policy-block">
+            <h4>Academic Honesty and Misconduct</h4>
+            <p>Students are expected to maintain academic honesty and uphold standards of integrity, responsibility, and respect throughout the course. The instructor is responsible for supporting and enforcing academic integrity in all course activities. Any form of academic misconduct, including but not limited to cheating, plagiarism, or unauthorized assistance, is prohibited and may result in disciplinary action. This includes misconduct that is direct or indirect, such as helping others engage in dishonest behavior.</p><br>
+            <p>Consequences for academic misconduct will depend on the severity of the violation and may include a reduced grade on an assignment, a grade of zero on the work in question, or a failing grade for the course.</p>
+          </div>
+          <div class="policy-block">
+            <h4>Classroom Environment</h4>
+            <p>This course is designed to be a space where students feel comfortable experimenting, asking questions, and trying new ideas even if they do not always get things right the first time. Learning often involves making mistakes, testing approaches, and refining understanding, and all of that is encouraged here.</p><br>
+            <p>Respect for one another is a key expectation in this classroom. Students are expected to engage with peers in a thoughtful and supportive way, especially during discussions and collaborative work. This includes listening carefully, considering different perspectives, and communicating in a way that is constructive and inclusive.</p><br>
+            <p>I aim to maintain an inclusive learning environment where students from all backgrounds feel welcomed and valued. Everyone is encouraged to contribute, stay open minded, and help create a positive and enjoyable class experience for the group as a whole.</p><br>
+            <p>If you have any concerns, questions, or need support at any point during the course, you are encouraged to reach out to me directly.</p>
+          </div>
+          <div class="policy-block">
+            <h4>Communication</h4>
+            <p>Students are encouraged to reach out whenever they have questions or need support. You can contact me by email, meet with me during office hours, or schedule a Zoom appointment if that works better for your schedule.</p><br>
+            <p>When sending emails, please ensure your message is polite, clearly written, and uses proper grammar so I can respond as effectively as possible. I will do my best to reply within 48 hours, not including weekends or university holidays.</p>
+          </div>
+          <div class="policy-block">
+            <h4>Plagiarism</h4>
+            <p>Plagiarism is a serious academic violation and is not acceptable in this course. It includes using or presenting someone else’s ideas, words, images, or work as your own without proper credit. This applies even when only part of the original material is used or when the wording is changed, but the idea remains the same.</p><br>
+            <p>Any material that is taken from another source must be properly cited. This includes all external sources such as books, articles, websites, media, and any other referenced content. In this course, all citations must follow the IEEE format. If information comes from any source other than your own original thinking, it must be clearly acknowledged through appropriate IEEE citation.</p><br>
+            <p>Self-plagiarism is not allowed. This means you may not reuse your own previous work submitted for another assignment or course.</p>
+          </div>
+        </div>
+
+        <div id="materials" class="tab-panel">
+          <div class="syllabus-section">
+            <h2>Required Texts</h2>
+            <ul>
+              <li><strong>Lazar, J., Feng, J. H., &amp; Hochheiser, H.</strong> <em>Research Methods in Human-Computer Interaction</em> (2nd ed.). Morgan Kaufmann. [Primary]</li>
+              <li><strong>Norman, D.</strong> <em>The Design of Everyday Things</em> (Revised ed.). Basic Books.</li>
+            </ul>
+          </div>
+          <div class="syllabus-section">
+            <h2>Recommended Texts</h2>
+            <ul>
+              <li><strong>Sharp, H., Rogers, Y., &amp; Preece, J.</strong> <em>Interaction Design: Beyond Human-Computer Interaction</em> (5th ed.). Wiley.</li>
+              <li><strong>Buxton, B.</strong> <em>Sketching User Experiences.</em> Morgan Kaufmann.</li>
+              <li><strong>Monteiro, M.</strong> <em>Ruined by Design.</em> Mule Design Studio.</li>
+            </ul>
+          </div>
+          <div class="syllabus-section">
+            <h2>Tools &amp; Resources</h2>
+            <ul>
+              <li>Reliable internet access and a device suitable to access the learning environment</li>
+              <li>Figma (free for students) — used for prototyping throughout Units 3–4</li>
+              <li>LaTeX editor (Overleaf recommended) — used for the final research paper</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assignments — HCI Research Fundamentals</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .assignment-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .assignment-card.open .assignment-body { display: block; }
+  .assignment-top {
+    padding: 1.1rem 1.25rem;
+    display: flex; align-items: flex-start; gap: 1rem;
+    cursor: pointer;
+  }
+  .assignment-top:hover { background: var(--surface-alt); }
+  .asgn-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; flex-shrink: 0;
+  }
+  .asgn-info { flex: 1; }
+  .asgn-info h3 { font-size: 0.95rem; margin: 0 0 0.3rem; }
+  .asgn-meta { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+  .asgn-meta span { font-size: 0.75rem; color: var(--text-muted); }
+  .asgn-actions { display: flex; align-items: center; gap: 0.5rem; }
+  .assignment-body { display: none; border-top: 1px solid var(--border); padding: 1.25rem; }
+  .component-list { list-style: none; padding: 0; }
+  .component-list li {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    padding: 0.6rem 0; border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .component-list li:last-child { border-bottom: none; }
+  .component-check { color: var(--primary); flex-shrink: 0; margin-top: 2px; }
+  .submit-zone {
+    background: var(--surface-alt);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    text-align: center;
+    margin-top: 1rem;
+    transition: border-color 0.2s;
+  }
+  .submit-zone:hover { border-color: var(--primary-muted); }
+  .submit-zone.submitted { border-color: var(--primary); background: var(--primary-light); border-style: solid; }
+  .submit-zone p { font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0; }
+  .points-badge {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 0.75rem; font-weight: 700;
+    padding: 0.2rem 0.6rem; border-radius: 20px;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">HCI</div><div class="logo-text">Research<br>Fundamentals</div></div>
+    <ul class="nav-list">
+      <li><a href="index.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a></li>
+      <li><a href="syllabus.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Syllabus</a></li>
+      <li><a href="schedule.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a></li>
+      <li><a href="modules.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Modules</a></li>
+      <li><a href="assignments.html" class="nav-link active"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Assignments</a></li>
+      <li><a href="quizzes.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quizzes</a></li>
+      <li><a href="discussions.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Discussions</a></li>
+      <li><a href="activities.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Activities</a></li>
+      <li><a href="grades.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grades</a></li>
+      <li><a href="rubrics.html" class="nav-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Rubrics</a></li>
+    </ul>
+  </nav>
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="page-title">Assignments</span>
+      <div class="topbar-actions"><span class="semester-badge">Spring 2026</span></div>
+    </header>
+    <div class="content-body">
+      <h1 style="margin-bottom:0.25rem;">Assignments</h1>
+      <p class="text-muted text-sm" style="margin-bottom:1.5rem;">All written work due Sundays at 11:59 PM ET. Click an assignment to expand details and submit.</p>
+      <div id="assignmentsContainer"></div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+const assignments = [
+  // {
+  //   id: 'topic_selection', icon: '🎯', color: '#e8f5e9',
+  //   title: 'Project Topic Selection', due: 'Week 1 · Sunday, Jan 19', points: 10, weight: '10% of milestones',
+  //   status: 'open', rubric: 'rubrics.html#topic',
+  //   description: 'Identify a real-world HCI problem meaningful to a community you care about. Submit a 1-paragraph problem statement and 2–3 preliminary research questions.',
+  //   components: [
+  //     '1-paragraph problem statement identifying the population and problem',
+  //     '2–3 initial research questions',
+  //     'Brief note on your personal connection or motivation'
+  //   ]
+  // },
+  {
+    id: 'milestone1', icon: '📋', color: '#e3f2fd',
+    title: 'Milestone 1: Research Proposal', due: 'Week 3 · Sunday, Jan 27', points: 10, weight: '10% of milestone',
+    status: 'open', rubric: 'rubrics.html#m1',
+    description: 'Establish a clear problem space, research questions, preliminary literature, and planned methods for your semester project.',
+    components: [
+      'Problem Statement & Motivation — who is affected, why it matters, what gap exists',
+      'Research Questions — 2–3 focused, researchable HCI questions',
+      'Annotated Bibliography — 8–10 scholarly sources (HCI + domain literature)',
+      'Methods Overview — proposed user research methods with initial justification',
+      'Positionality Statement — how your background may shape your research'
+    ]
+  },
+  {
+    id: 'milestone2', icon: '👥', color: '#fce4ec',
+    title: 'Milestone 2: User Research Report', due: 'Week 6 · Sunday, Feb 17', points: 100, weight: '30% of milestone',
+    status: 'upcoming', rubric: 'rubrics.html#m2',
+    description: 'Ground design decisions in original user research using at least two methods and a minimum of 3–5 participants.',
+    components: [
+      'Methods Section — participants, data collection, justification',
+      'Data Collection Artifacts — interview guide, observation protocol, or survey',
+      'Findings — themes with supporting evidence (quotes, observations, data)',
+      'Synthesis Artifact — affinity diagram or equivalent',
+      'Design Implications — 3–5 specific, actionable insights for the prototype'
+    ]
+  },
+  {
+    id: 'milestone3', icon: '🖥️', color: '#f3e5f5',
+    title: 'Milestone 3: Prototype + Design Rationale', due: 'Week 9 · Sunday, Mar 10', points: 100, weight: '30% of milestone',
+    status: 'upcoming', rubric: 'rubrics.html#m3',
+    description: 'Translate research findings into a hi-fi interactive prototype with documented design reasoning.',
+    components: [
+      'Hi-Fi Prototype — Figma prototype with minimum 5 screens/states covering core user flow',
+      'Design Rationale — 3–4 page document connecting design decisions to research findings',
+      'Accessibility Documentation — WCAG 2.1 checklist with issues identified and addressed',
+      'Lo-Fi to Hi-Fi Evolution — before/after sketches with explanation of key design changes'
+    ]
+  },
+  {
+    id: 'milestone4', icon: '🧪', color: '#e0f2f1',
+    title: 'Milestone 4: Evaluation Findings Report', due: 'Week 12 · Sunday, Mar 31', points: 100, weight: '30% of milestone',
+    status: 'upcoming', rubric: 'rubrics.html#m4',
+    description: 'Evaluate the prototype with real users and synthesize quantitative and qualitative findings into prioritized recommendations.',
+    components: [
+      'Evaluation Plan — participants, tasks, measures, and methods',
+      'Quantitative Results — task completion rates, time on task, SUS scores',
+      'Qualitative Findings — themes from think-aloud and post-session interviews',
+      'Heuristic Evaluation Summary — Nielsen\'s 10 heuristics violations rated',
+      'Prioritized Recommendations — at least 5 redesign recommendations with severity ratings'
+    ]
+  },
+  {
+    id: 'final_paper', icon: '📄', color: '#fff3e0',
+    title: 'Final Research Paper', due: 'Week 15 · Monday, Apr 21 (in class)', points: 100, weight: '75% of final project',
+    status: 'upcoming', rubric: 'rubrics.html#final',
+    description: 'A complete 10–14 page CHI-style research paper synthesizing all prior milestones. Must include: Abstract, Introduction, Related Work, Methods, Findings, Design, Evaluation, Discussion, Limitations, Conclusion, and References (minimum 15 scholarly sources).',
+    components: [
+      'Abstract — concise summary of the full paper',
+      'Introduction — motivation, problem, contributions',
+      'Related Work — integrated synthesis of 15+ scholarly sources',
+      'Methods — research and design process',
+      'Findings — user research results',
+      'Design — prototype description and rationale',
+      'Evaluation — usability testing findings',
+      'Discussion, Limitations, Conclusion',
+      'References — IEEE format, minimum 15 sources'
+    ]
+  },
+  {
+    id: 'final_presentation', icon: '🎤', color: '#fce4ec',
+    title: 'Final Presentation & Showcase', due: 'Week 15 · Monday, Apr 21 (in class)', points: 100, weight: '25% of final project',
+    status: 'upcoming', rubric: 'rubrics.html#final',
+    description: '15-minute research presentation with live prototype demonstration and Q&A.',
+    components: [
+      '15-minute presentation covering research process and findings',
+      'Live prototype demonstration',
+      'Q&A response (5 minutes)'
+    ]
+  }
+];
+
+const statusColors = {
+  open: 'badge-open',
+  upcoming: 'badge-upcoming',
+  submitted: 'badge-submitted',
+  graded: 'badge-graded'
+};
+
+const container = document.getElementById('assignmentsContainer');
+const submissions = SubmitStore.get();
+
+assignments.forEach(a => {
+  const isSubmitted = !!submissions[a.id];
+  const card = document.createElement('div');
+  card.className = 'assignment-card';
+  card.innerHTML = `
+    <div class="assignment-top" onclick="this.closest('.assignment-card').classList.toggle('open')">
+      <div class="asgn-icon" style="background:${a.color};">${a.icon}</div>
+      <div class="asgn-info">
+        <h3>${a.title}</h3>
+        <div class="asgn-meta">
+          <span>📅 ${a.due}</span>
+          <span class="points-badge">${a.points} pts</span>
+          <span>${a.weight}</span>
+          <span class="badge-status ${isSubmitted ? 'badge-submitted' : statusColors[a.status]}">${isSubmitted ? 'Submitted' : a.status}</span>
+        </div>
+      </div>
+      <div class="asgn-actions">
+        <a href="${a.rubric}" class="btn btn-sm btn-ghost" onclick="event.stopPropagation()">Rubric</a>
+        <svg style="color:var(--text-muted);margin-left:0.25rem;" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+    <div class="assignment-body">
+      <p style="font-size:0.875rem;margin-bottom:1rem;">${a.description}</p>
+      <h4 style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary);margin-bottom:0.5rem;">Required Components</h4>
+      <ul class="component-list">
+        ${a.components.map(c => `
+          <li>
+            <svg class="component-check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            ${c}
+          </li>
+        `).join('')}
+      </ul>
+      <div class="submit-zone ${isSubmitted ? 'submitted' : ''}" id="zone-${a.id}">
+        ${isSubmitted ? `
+          <div style="font-size:1.5rem;margin-bottom:0.35rem;">✅</div>
+          <div style="font-weight:700;font-size:0.875rem;color:var(--primary);">Submitted</div>
+          <p>Submitted on ${new Date(submissions[a.id].date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</p>
+          <button class="btn btn-sm btn-outline" style="margin-top:0.75rem;" onclick="resubmit('${a.id}')">Resubmit</button>
+        ` : `
+          <div style="font-size:1.5rem;margin-bottom:0.35rem;">📎</div>
+          <div style="font-weight:600;font-size:0.875rem;">Submit Your Work</div>
+          <p>Add a submission note or link (e.g., Google Doc, Figma link, PDF URL)</p>
+          <div class="form-group" style="margin-top:0.75rem;text-align:left;">
+            <label for="link-${a.id}">Submission Link or Note</label>
+            <input type="text" id="link-${a.id}" placeholder="https://docs.google.com/... or paste your response" />
+          </div>
+          <button class="btn btn-sm" style="margin-top:0.25rem;" onclick="submitAssignment('${a.id}')">Submit Assignment</button>
+        `}
+      </div>
+    </div>
+  `;
+  container.appendChild(card);
+});
+
+function submitAssignment(id) {
+  const input = document.getElementById('link-' + id);
+  if (!input.value.trim()) { alert('Please add a submission note or link.'); return; }
+  SubmitStore.save(id, { link: input.value.trim() });
+  const zone = document.getElementById('zone-' + id);
+  zone.classList.add('submitted');
+  zone.innerHTML = `
+    <div style="font-size:1.5rem;margin-bottom:0.35rem;">✅</div>
+    <div style="font-weight:700;font-size:0.875rem;color:var(--primary);">Submitted!</div>
+    <p>Your submission has been recorded.</p>
+    <button class="btn btn-sm btn-outline" style="margin-top:0.75rem;" onclick="resubmit('${id}')">Resubmit</button>
+  `;
+}
+
+function resubmit(id) {
+  const submissions = SubmitStore.get();
+  delete submissions[id];
+  localStorage.setItem('hci_course_submissions', JSON.stringify(submissions));
+  location.reload();
+}
+</script>
+</body>
+</html>
